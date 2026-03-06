@@ -5,7 +5,7 @@
  * Description: Display the number of active installations of your plugins via the Freemius API
  * Version: 1.1.0
  * Author: Wycan
- * Author URI: https://wycan.com
+ * Author URI: https://wycan.fr
  * License: GPL v2 or later
  * Text Domain: wycan-freemius-stats
  * Domain Path: /languages
