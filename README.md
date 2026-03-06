@@ -206,9 +206,6 @@ To compile the French translation:
 
 Other languages can be added by translating the `.po` file.
 
-## Support
-
-For any questions or issues, contact Wycan support.
 
 ## License
 
