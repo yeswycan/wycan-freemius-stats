@@ -1,0 +1,313 @@
+# Translation file for Wycan Freemius Stats
+# Copyright (C) 2026 Wycan
+# This file is distributed under the same license as the Wycan Freemius Stats package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Wycan Freemius Stats 1.1.0\n"
+"Report-Msgid-Bugs-To: https://wycan.com\n"
+"POT-Creation-Date: 2026-03-06 12:00+0000\n"
+"PO-Revision-Date: 2026-03-06 12:00+0000\n"
+"Last-Translator: Wycan <support@wycan.com>\n"
+"Language-Team: French\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: wycan-freemius-stats.php:44
+#: wycan-freemius-stats.php:45
+msgid "Freemius Stats"
+msgstr "Freemius Stats"
+
+#: wycan-freemius-stats.php:57
+msgid "Freemius Products Configuration"
+msgstr "Configuration des Produits Freemius"
+
+#: wycan-freemius-stats.php:64
+msgid "Products"
+msgstr "Produits"
+
+#: wycan-freemius-stats.php:72
+msgid "Configure your Freemius products with their ID and API token."
+msgstr "Configurez vos produits Freemius avec leur ID et token API."
+
+#: wycan-freemius-stats.php:73
+msgid "To get your API token:"
+msgstr "Pour obtenir votre token API :"
+
+#: wycan-freemius-stats.php:77
+msgid "Go to %s"
+msgstr "Allez sur %s"
+
+#: wycan-freemius-stats.php:78
+msgid "Freemius Dashboard"
+msgstr "Freemius Dashboard"
+
+#: wycan-freemius-stats.php:80
+msgid "Open the Settings page of your product"
+msgstr "Ouvrez la page Settings de votre produit"
+
+#: wycan-freemius-stats.php:81
+msgid "Click on the \"API Token\" tab"
+msgstr "Cliquez sur l'onglet \"API Token\""
+
+#: wycan-freemius-stats.php:82
+msgid "Copy the \"API Bearer Authorization Token\""
+msgstr "Copiez le \"API Bearer Authorization Token\""
+
+#: wycan-freemius-stats.php:100
+msgid "Add Product"
+msgstr "Ajouter un produit"
+
+#: wycan-freemius-stats.php:109
+msgid "Product"
+msgstr "Produit"
+
+#: wycan-freemius-stats.php:111
+msgid "Product slug (for shortcode):"
+msgstr "Slug du produit (pour le shortcode) :"
+
+#: wycan-freemius-stats.php:112
+#: wycan-freemius-stats.php:151
+msgid "my-plugin"
+msgstr "mon-plugin"
+
+#: wycan-freemius-stats.php:115
+msgid "Product name:"
+msgstr "Nom du produit :"
+
+#: wycan-freemius-stats.php:116
+#: wycan-freemius-stats.php:155
+msgid "My Plugin"
+msgstr "Mon Plugin"
+
+#: wycan-freemius-stats.php:119
+msgid "Freemius Product ID:"
+msgstr "Product ID Freemius :"
+
+#: wycan-freemius-stats.php:123
+msgid "API Bearer Token:"
+msgstr "API Bearer Token :"
+
+#: wycan-freemius-stats.php:124
+#: wycan-freemius-stats.php:163
+msgid "Bearer token..."
+msgstr "Bearer token..."
+
+#: wycan-freemius-stats.php:126
+#: wycan-freemius-stats.php:165
+msgid "Remove"
+msgstr "Supprimer"
+
+#: wycan-freemius-stats.php:148
+msgid "Product %d"
+msgstr "Produit %d"
+
+#: wycan-freemius-stats.php:176
+msgid "Settings saved"
+msgstr "Paramètres enregistrés"
+
+#: wycan-freemius-stats.php:187
+msgid "Save Settings"
+msgstr "Enregistrer les paramètres"
+
+#: wycan-freemius-stats.php:193
+msgid "Usage"
+msgstr "Utilisation"
+
+#: wycan-freemius-stats.php:194
+msgid "Shortcode"
+msgstr "Shortcode"
+
+#: wycan-freemius-stats.php:195
+msgid "Method 1: With ACF field (recommended for dynamic templates)"
+msgstr "Méthode 1 : Avec un champ ACF (recommandé pour templates dynamiques)"
+
+#: wycan-freemius-stats.php:196
+msgid "Create an ACF field (e.g., \"freemius_product_slug\") in your product pages, then:"
+msgstr "Créez un champ ACF (ex: \"freemius_product_slug\") dans vos fiches produits, puis :"
+
+#: wycan-freemius-stats.php:199
+msgid "Method 2: With fixed slug"
+msgstr "Méthode 2 : Avec un slug fixe"
+
+#: wycan-freemius-stats.php:202
+msgid "Available parameters:"
+msgstr "Paramètres disponibles :"
+
+#: wycan-freemius-stats.php:204
+msgid "ACF field name containing the product slug (priority)"
+msgstr "Le nom du champ ACF contenant le slug du produit (prioritaire)"
+
+#: wycan-freemius-stats.php:205
+msgid "Hard-coded product slug (if acf_field is not used)"
+msgstr "Le slug du produit en dur (si acf_field n'est pas utilisé)"
+
+#: wycan-freemius-stats.php:206
+msgid "\"number\" (default) or \"text\" (e.g., \"1,234 active installations\")"
+msgstr "\"number\" (par défaut) ou \"text\" (ex: \"1,234 installations actives\")"
+
+#: wycan-freemius-stats.php:207
+msgid "\"true\" (default) or \"false\" to include inactive installations"
+msgstr "\"true\" (par défaut) ou \"false\" pour inclure les installations inactives"
+
+#: wycan-freemius-stats.php:210
+msgid "PHP Function"
+msgstr "Fonction PHP"
+
+#: wycan-freemius-stats.php:211
+msgid "In your templates:"
+msgstr "Dans vos templates :"
+
+#: wycan-freemius-stats.php:214
+msgid "Elementor Widget"
+msgstr "Widget Elementor"
+
+#: wycan-freemius-stats.php:215
+msgid "A \"Freemius Install Count\" widget is available in Elementor."
+msgstr "Un widget \"Freemius Install Count\" est disponible dans Elementor."
+
+#: wycan-freemius-stats.php:300
+msgid "Error: Unable to retrieve ACF field \"%s\""
+msgstr "Erreur : impossible de récupérer le champ ACF \"%s\""
+
+#: wycan-freemius-stats.php:307
+msgid "Error: You must specify either \"slug\" or \"acf_field\""
+msgstr "Erreur : vous devez spécifier soit \"slug\" soit \"acf_field\""
+
+#: wycan-freemius-stats.php:316
+msgid "Error: Unable to retrieve data for \"%s\""
+msgstr "Erreur : impossible de récupérer les données pour \"%s\""
+
+#: wycan-freemius-stats.php:324
+msgid "%s active installation"
+msgid_plural "%s active installations"
+msgstr[0] "%s installation active"
+msgstr[1] "%s installations actives"
+
+#: includes/elementor-widget.php:13
+msgid "Freemius Install Count"
+msgstr "Freemius Install Count"
+
+#: includes/elementor-widget.php:29
+msgid "Settings"
+msgstr "Paramètres"
+
+#: includes/elementor-widget.php:44
+msgid "No product configured"
+msgstr "Aucun produit configuré"
+
+#: includes/elementor-widget.php:50
+msgid "Product source"
+msgstr "Source du produit"
+
+#: includes/elementor-widget.php:53
+msgid "Fixed product"
+msgstr "Produit fixe"
+
+#: includes/elementor-widget.php:54
+msgid "ACF field (dynamic)"
+msgstr "Champ ACF (dynamique)"
+
+#: includes/elementor-widget.php:63
+msgid "Product"
+msgstr "Produit"
+
+#: includes/elementor-widget.php:76
+msgid "ACF field name"
+msgstr "Nom du champ ACF"
+
+#: includes/elementor-widget.php:80
+msgid "The ACF field name containing the product slug"
+msgstr "Le nom du champ ACF contenant le slug du produit"
+
+#: includes/elementor-widget.php:90
+msgid "Display format"
+msgstr "Format d'affichage"
+
+#: includes/elementor-widget.php:93
+msgid "Number only"
+msgstr "Nombre seulement"
+
+#: includes/elementor-widget.php:94
+msgid "Full text"
+msgstr "Texte complet"
+
+#: includes/elementor-widget.php:103
+msgid "Active installations only"
+msgstr "Installations actives uniquement"
+
+#: includes/elementor-widget.php:105
+msgid "Yes"
+msgstr "Oui"
+
+#: includes/elementor-widget.php:106
+msgid "No"
+msgstr "Non"
+
+#: includes/elementor-widget.php:115
+msgid "Text before"
+msgstr "Texte avant"
+
+#: includes/elementor-widget.php:118
+msgid "More than"
+msgstr "Plus de"
+
+#: includes/elementor-widget.php:125
+msgid "Text after"
+msgstr "Texte après"
+
+#: includes/elementor-widget.php:128
+msgid "users"
+msgstr "utilisateurs"
+
+#: includes/elementor-widget.php:137
+msgid "Style"
+msgstr "Style"
+
+#: includes/elementor-widget.php:145
+msgid "Text color"
+msgstr "Couleur du texte"
+
+#: includes/elementor-widget.php:164
+msgid "Alignment"
+msgstr "Alignement"
+
+#: includes/elementor-widget.php:168
+msgid "Left"
+msgstr "Gauche"
+
+#: includes/elementor-widget.php:172
+msgid "Center"
+msgstr "Centre"
+
+#: includes/elementor-widget.php:176
+msgid "Right"
+msgstr "Droite"
+
+#: includes/elementor-widget.php:205
+msgid "Error: ACF field name is missing"
+msgstr "Erreur : nom du champ ACF manquant"
+
+#: includes/elementor-widget.php:210
+msgid "Error: ACF is not installed"
+msgstr "Erreur : ACF n'est pas installé"
+
+#: includes/elementor-widget.php:219
+msgid "Error: ACF field \"%s\" is empty"
+msgstr "Erreur : le champ ACF \"%s\" est vide"
+
+#: includes/elementor-widget.php:228
+msgid "Please configure a product in the plugin settings."
+msgstr "Veuillez configurer un produit dans les paramètres du plugin."
+
+#: includes/elementor-widget.php:237
+msgid "Error: Unable to retrieve data"
+msgstr "Erreur : impossible de récupérer les données"
+
+#: includes/elementor-widget.php:250
+msgid "%s active installation"
+msgid_plural "%s active installations"
+msgstr[0] "%s installation active"
+msgstr[1] "%s installations actives"
