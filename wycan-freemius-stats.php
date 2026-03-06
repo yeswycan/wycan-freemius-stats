@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Wycan Freemius Stats
- * Plugin URI: https://wycan.com
+ * Plugin URI: https://wycan.fr
  * Description: Display the number of active installations of your plugins via the Freemius API
  * Version: 1.1.0
  * Author: Wycan
