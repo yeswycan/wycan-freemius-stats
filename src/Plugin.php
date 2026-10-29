@@ -13,6 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Wycan\FreemiusStats\Admin\Admin;
 use Wycan\FreemiusStats\Api\Client;
 use Wycan\FreemiusStats\Counts\CountStore;
 use Wycan\FreemiusStats\Counts\InstallCounts;
@@ -65,6 +66,9 @@ final class Plugin {
 		Migrator::maybe_run();
 
 		$plugin->scheduler->register();
+		if ( is_admin() ) {
+			( new Admin( $plugin ) )->register();
+		}
 		add_action( 'init', [ $plugin, 'init' ] );
 		add_action( 'elementor/widgets/register', [ $plugin, 'register_widget' ] );
 	}
