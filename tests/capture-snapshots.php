@@ -57,24 +57,18 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 $plugin_main = $plugin_dir . '/wycan-freemius-stats.php';
 $needed      = [ 'elementor/elementor.php', $plugin_main ];
-$activated   = false;
+$active      = (array) get_option( 'active_plugins', [] );
+$wanted      = array_values( array_filter( $active, static fn( $file ) => in_array( $file, $needed, true ) || ! str_starts_with( (string) $file, 'wycan-' ) ) );
 foreach ( $needed as $file ) {
-	if ( ! is_plugin_active( $file ) ) {
-		$result = activate_plugin( $file, '', false, true );
-		if ( is_wp_error( $result ) ) {
-			fwrite( STDERR, 'Activation impossible : ' . $result->get_error_message() . "\n" );
-			exit( 1 );
-		}
-		$activated = true;
+	if ( ! in_array( $file, $wanted, true ) ) {
+		$wanted[] = $file;
 	}
 }
-foreach ( get_option( 'active_plugins', [] ) as $file ) {
-	if ( ! in_array( $file, $needed, true ) && str_starts_with( $file, 'wycan-' ) ) {
-		deactivate_plugins( $file, true );
-		$activated = true;
-	}
-}
-if ( $activated ) {
+sort( $wanted );
+if ( $wanted !== $active ) {
+	// Deux versions du plugin déclarent les mêmes classes : l'option est écrite sans inclure
+	// les fichiers, puis le script est relancé.
+	update_option( 'active_plugins', $wanted );
 	fwrite( STDERR, "Extensions activées : relance du script.\n" );
 	exit( 75 );
 }
@@ -142,7 +136,7 @@ add_filter(
 function wfs_reset_caches(): void {
 	global $wpdb;
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-	$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient%freemius_count_%' OR option_name LIKE '_transient%wfs_%' OR option_name LIKE 'wycan_freemius_%' AND option_name <> 'wycan_freemius_products'" );
+	$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient%freemius_count_%' OR option_name = 'wycan_freemius_counts'" );
 	wp_cache_flush();
 }
 
