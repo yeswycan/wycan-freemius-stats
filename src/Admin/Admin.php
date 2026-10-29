@@ -76,7 +76,6 @@ final class Admin {
 				'copy'           => __( 'Copy', 'wycan-freemius-stats' ),
 				'edit'           => __( 'Edit', 'wycan-freemius-stats' ),
 				'close'          => __( 'Close', 'wycan-freemius-stats' ),
-				'unsaved'        => __( 'Changes not saved yet.', 'wycan-freemius-stats' ),
 				'resultSummary'  => /* translators: 1: active installs, 2: total installs */ __( '%1$s active installations, %2$s in total.', 'wycan-freemius-stats' ),
 			],
 		];

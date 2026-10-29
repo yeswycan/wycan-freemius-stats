@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Wycan Freemius Stats 2.0.0\n"
 "Report-Msgid-Bugs-To: https://wycan.fr\n"
-"POT-Creation-Date: 2026-10-29T12:36:48+00:00\n"
+"POT-Creation-Date: 2026-10-29T12:47:45+00:00\n"
 "PO-Revision-Date: 2026-10-29 14:00+0100\n"
 "Last-Translator: Wycan <contact@wycan.fr>\n"
 "Language-Team: Wycan <contact@wycan.fr>\n"
@@ -77,12 +77,8 @@ msgstr "Modifier"
 msgid "Close"
 msgstr "Fermer"
 
-#: src/Admin/Admin.php:79 src/Admin/SettingsPage.php:86
-msgid "Changes not saved yet."
-msgstr "Modifications non enregistrées."
-
 #. translators: 1: active installs, 2: total installs
-#: src/Admin/Admin.php:80
+#: src/Admin/Admin.php:79
 #, php-format
 msgid "%1$s active installations, %2$s in total."
 msgstr "%1$s installations actives, %2$s au total."
@@ -232,6 +228,10 @@ msgstr "Aucun produit pour l'instant. Ajoutez-en un, testez la connexion, puis e
 #: src/Admin/SettingsPage.php:85
 msgid "Save the products"
 msgstr "Enregistrer les produits"
+
+#: src/Admin/SettingsPage.php:86
+msgid "Changes not saved yet."
+msgstr "Modifications non enregistrées."
 
 #: src/Admin/SettingsPage.php:114
 msgid "ID"

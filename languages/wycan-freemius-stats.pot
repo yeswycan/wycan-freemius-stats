@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-29T12:36:48+00:00\n"
+"POT-Creation-Date: 2026-10-29T12:47:45+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wycan-freemius-stats\n"
@@ -80,13 +80,8 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-#: src/Admin/Admin.php:79
-#: src/Admin/SettingsPage.php:86
-msgid "Changes not saved yet."
-msgstr ""
-
 #. translators: 1: active installs, 2: total installs
-#: src/Admin/Admin.php:80
+#: src/Admin/Admin.php:79
 #, php-format
 msgid "%1$s active installations, %2$s in total."
 msgstr ""
@@ -238,6 +233,10 @@ msgstr ""
 
 #: src/Admin/SettingsPage.php:85
 msgid "Save the products"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:86
+msgid "Changes not saved yet."
 msgstr ""
 
 #: src/Admin/SettingsPage.php:114
