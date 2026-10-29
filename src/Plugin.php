@@ -16,9 +16,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Wycan\FreemiusStats\Api\Client;
 use Wycan\FreemiusStats\Counts\CountStore;
 use Wycan\FreemiusStats\Counts\InstallCounts;
+use Wycan\FreemiusStats\Counts\Scheduler;
 use Wycan\FreemiusStats\Counts\Sync;
+use Wycan\FreemiusStats\Counts\Versions;
 use Wycan\FreemiusStats\Front\InstallCountWidget;
 use Wycan\FreemiusStats\Front\Shortcode;
+use Wycan\FreemiusStats\Front\VersionShortcode;
 use Wycan\FreemiusStats\Products\Repository;
 use Wycan\FreemiusStats\Upgrade\Migrator;
 
@@ -30,14 +33,18 @@ final class Plugin {
 	public readonly CountStore $store;
 	public readonly Client $client;
 	public readonly Sync $sync;
+	public readonly Scheduler $scheduler;
 	public readonly InstallCounts $counts;
+	public readonly Versions $versions;
 
 	private function __construct() {
-		$this->products = new Repository();
-		$this->store    = new CountStore();
-		$this->client   = new Client();
-		$this->sync     = new Sync( $this->client, $this->store );
-		$this->counts   = new InstallCounts( $this->products, $this->store, $this->sync );
+		$this->products  = new Repository();
+		$this->store     = new CountStore();
+		$this->client    = new Client();
+		$this->sync      = new Sync( $this->client, $this->store );
+		$this->scheduler = new Scheduler( $this->products, $this->sync, $this->store );
+		$this->counts    = new InstallCounts( $this->products, $this->store, $this->sync, $this->scheduler );
+		$this->versions  = new Versions( $this->store, $this->sync, $this->scheduler );
 	}
 
 	public static function instance(): self {
@@ -57,21 +64,25 @@ final class Plugin {
 
 		Migrator::maybe_run();
 
+		$plugin->scheduler->register();
 		add_action( 'init', [ $plugin, 'init' ] );
 		add_action( 'elementor/widgets/register', [ $plugin, 'register_widget' ] );
 	}
 
 	public static function activate(): void {
 		Migrator::maybe_run();
+		self::instance()->scheduler->ensure_scheduled();
 	}
 
 	public static function deactivate(): void {
+		self::instance()->scheduler->unschedule();
 	}
 
 	public function init(): void {
 		load_plugin_textdomain( 'wycan-freemius-stats', false, dirname( WFS_BASENAME ) . '/languages' );
 		$this->products->register_setting();
 		( new Shortcode( $this ) )->register();
+		( new VersionShortcode( $this ) )->register();
 	}
 
 	/**

@@ -24,6 +24,7 @@ final class InstallCounts {
 		private readonly Repository $products,
 		private readonly CountStore $store,
 		private readonly Sync $sync,
+		private readonly Scheduler $scheduler,
 	) {}
 
 	/**
@@ -37,6 +38,7 @@ final class InstallCounts {
 
 		$known = $this->store->count( $product['product_id'], $active_only );
 		if ( null !== $known ) {
+			$this->scheduler->refresh_if_stale( $product['product_id'], CountStore::field( $active_only ) );
 			return $known;
 		}
 

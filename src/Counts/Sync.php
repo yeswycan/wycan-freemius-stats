@@ -13,7 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Wycan\FreemiusStats\Api\ApiResult;
 use Wycan\FreemiusStats\Api\Client;
 use Wycan\FreemiusStats\Security\TokenStore;
 
@@ -50,6 +49,28 @@ final class Sync {
 	}
 
 	/**
+	 * Latest published version, stored on success.
+	 *
+	 * @param array{slug: string, name: string, product_id: string, api_token: string} $product
+	 * @return array{version: string, date: string, requires: string, tested: string}|null
+	 */
+	public function version( array $product, int $timeout ): ?array {
+		$token = TokenStore::get( $product );
+		if ( null === $token || '' === $product['product_id'] ) {
+			return null;
+		}
+
+		$release = $this->client->latest_release( $product['product_id'], $token, $timeout );
+		if ( ! $release->ok ) {
+			$this->store->record_failure( $product['product_id'], CountStore::FIELD_VERSION, $release );
+			return null;
+		}
+
+		$this->store->set_version( $product['product_id'], $release->data );
+		return $release->data;
+	}
+
+	/**
 	 * Every value of a product: both counts and the latest published version.
 	 *
 	 * @param array{slug: string, name: string, product_id: string, api_token: string} $product
@@ -64,13 +85,7 @@ final class Sync {
 		$ok = null !== $this->count( $product, true, $timeout );
 		$ok = null !== $this->count( $product, false, $timeout ) && $ok;
 
-		$release = $this->client->latest_release( $product['product_id'], $token, $timeout );
-		if ( $release->ok ) {
-			$this->store->set_version( $product['product_id'], $release->data );
-		} else {
-			$this->store->record_failure( $product['product_id'], CountStore::FIELD_VERSION, $release );
-			$ok = false;
-		}
+		$ok = null !== $this->version( $product, $timeout ) && $ok;
 
 		if ( $ok ) {
 			$this->store->clear_error( $product['product_id'] );
