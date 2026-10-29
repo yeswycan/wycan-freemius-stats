@@ -1,0 +1,357 @@
+{
+    "name": "freemius_install_count",
+    "categories": [
+        "general"
+    ],
+    "icon": "eicon-counter",
+    "controls": {
+        "content_section": {
+            "type": "section",
+            "tab": "content"
+        },
+        "source_type": {
+            "type": "select",
+            "default": "acf",
+            "tab": "content",
+            "section": "content_section",
+            "option_keys": [
+                "fixed",
+                "acf"
+            ]
+        },
+        "product_slug": {
+            "type": "select",
+            "default": "",
+            "condition": {
+                "source_type": "fixed"
+            },
+            "tab": "content",
+            "section": "content_section",
+            "option_keys": [
+                ""
+            ]
+        },
+        "acf_field_name": {
+            "type": "text",
+            "default": "freemius_product_slug",
+            "condition": {
+                "source_type": "acf"
+            },
+            "tab": "content",
+            "section": "content_section"
+        },
+        "display_format": {
+            "type": "select",
+            "default": "number",
+            "tab": "content",
+            "section": "content_section",
+            "option_keys": [
+                "number",
+                "text"
+            ]
+        },
+        "active_only": {
+            "type": "switcher",
+            "default": "yes",
+            "return_value": "yes",
+            "tab": "content",
+            "section": "content_section"
+        },
+        "prefix_text": {
+            "type": "text",
+            "default": "",
+            "tab": "content",
+            "section": "content_section"
+        },
+        "suffix_text": {
+            "type": "text",
+            "default": "",
+            "tab": "content",
+            "section": "content_section"
+        },
+        "style_section": {
+            "type": "section",
+            "tab": "style"
+        },
+        "text_color": {
+            "type": "color",
+            "default": "",
+            "selectors": {
+                "{{WRAPPER}} .freemius-install-count-wrapper": "color: {{VALUE}}"
+            },
+            "tab": "style",
+            "section": "style_section"
+        },
+        "typography_typography": {
+            "type": "popover_toggle",
+            "default": "",
+            "return_value": "custom",
+            "tab": "style",
+            "section": "style_section"
+        },
+        "typography_font_family": {
+            "type": "font",
+            "default": "",
+            "condition": {
+                "typography_typography!": ""
+            },
+            "selectors": {
+                "{{WRAPPER}} .freemius-install-count-wrapper": "font-family: \"{{VALUE}}\", Sans-serif;"
+            },
+            "tab": "style",
+            "section": "style_section"
+        },
+        "typography_font_size": {
+            "type": "slider",
+            "default": {
+                "unit": "px",
+                "size": "",
+                "sizes": []
+            },
+            "condition": {
+                "typography_typography!": ""
+            },
+            "selectors": {
+                "{{WRAPPER}} .freemius-install-count-wrapper": "font-size: {{SIZE}}{{UNIT}}"
+            },
+            "tab": "style",
+            "responsive": [],
+            "section": "style_section"
+        },
+        "typography_font_weight": {
+            "type": "select",
+            "default": "",
+            "condition": {
+                "typography_typography!": ""
+            },
+            "selectors": {
+                "{{WRAPPER}} .freemius-install-count-wrapper": "font-weight: {{VALUE}};"
+            },
+            "tab": "style",
+            "section": "style_section",
+            "option_keys": [
+                100,
+                200,
+                300,
+                400,
+                500,
+                600,
+                700,
+                800,
+                900,
+                "",
+                "normal",
+                "bold"
+            ]
+        },
+        "typography_text_transform": {
+            "type": "select",
+            "default": "",
+            "condition": {
+                "typography_typography!": ""
+            },
+            "selectors": {
+                "{{WRAPPER}} .freemius-install-count-wrapper": "text-transform: {{VALUE}};"
+            },
+            "tab": "style",
+            "section": "style_section",
+            "option_keys": [
+                "",
+                "uppercase",
+                "lowercase",
+                "capitalize",
+                "none"
+            ]
+        },
+        "typography_font_style": {
+            "type": "select",
+            "default": "",
+            "condition": {
+                "typography_typography!": ""
+            },
+            "selectors": {
+                "{{WRAPPER}} .freemius-install-count-wrapper": "font-style: {{VALUE}};"
+            },
+            "tab": "style",
+            "section": "style_section",
+            "option_keys": [
+                "",
+                "normal",
+                "italic",
+                "oblique"
+            ]
+        },
+        "typography_text_decoration": {
+            "type": "select",
+            "default": "",
+            "condition": {
+                "typography_typography!": ""
+            },
+            "selectors": {
+                "{{WRAPPER}} .freemius-install-count-wrapper": "text-decoration: {{VALUE}};"
+            },
+            "tab": "style",
+            "section": "style_section",
+            "option_keys": [
+                "",
+                "underline",
+                "overline",
+                "line-through",
+                "none"
+            ]
+        },
+        "typography_line_height": {
+            "type": "slider",
+            "default": {
+                "unit": "px",
+                "size": "",
+                "sizes": []
+            },
+            "condition": {
+                "typography_typography!": ""
+            },
+            "selectors": {
+                "{{WRAPPER}} .freemius-install-count-wrapper": "line-height: {{SIZE}}{{UNIT}}"
+            },
+            "tab": "style",
+            "responsive": [],
+            "section": "style_section"
+        },
+        "typography_letter_spacing": {
+            "type": "slider",
+            "default": {
+                "unit": "px",
+                "size": "",
+                "sizes": []
+            },
+            "condition": {
+                "typography_typography!": ""
+            },
+            "selectors": {
+                "{{WRAPPER}} .freemius-install-count-wrapper": "letter-spacing: {{SIZE}}{{UNIT}}"
+            },
+            "tab": "style",
+            "responsive": [],
+            "section": "style_section"
+        },
+        "typography_word_spacing": {
+            "type": "slider",
+            "default": {
+                "unit": "px",
+                "size": "",
+                "sizes": []
+            },
+            "condition": {
+                "typography_typography!": ""
+            },
+            "selectors": {
+                "{{WRAPPER}} .freemius-install-count-wrapper": "word-spacing: {{SIZE}}{{UNIT}}"
+            },
+            "tab": "style",
+            "responsive": [],
+            "section": "style_section"
+        },
+        "text_align": {
+            "type": "choose",
+            "default": "left",
+            "selectors": {
+                "{{WRAPPER}} .freemius-install-count-wrapper": "text-align: {{VALUE}}"
+            },
+            "tab": "style",
+            "responsive": [],
+            "section": "style_section",
+            "option_keys": [
+                "left",
+                "center",
+                "right"
+            ]
+        },
+        "display_conditions_pro": {
+            "type": "raw_html",
+            "tab": "content",
+            "section": "_section_style"
+        },
+        "section_effects": {
+            "type": "section",
+            "tab": "content"
+        },
+        "scrolling_effects_pro": {
+            "type": "raw_html",
+            "tab": "content",
+            "section": "section_effects"
+        },
+        "mouse_effects_pro": {
+            "type": "raw_html",
+            "tab": "content",
+            "section": "section_effects"
+        },
+        "sticky_pro": {
+            "type": "raw_html",
+            "tab": "content",
+            "section": "section_effects"
+        },
+        "motion_effects_promotion_divider": {
+            "type": "divider",
+            "tab": "content",
+            "section": "section_effects"
+        },
+        "animation_duration": {
+            "type": "select",
+            "default": "",
+            "condition": {
+                "_animation!": ""
+            },
+            "tab": "content",
+            "section": "section_effects"
+        },
+        "ai_hover_animation": {
+            "type": "raw_html",
+            "tab": "content",
+            "section": "_section_transform"
+        },
+        "responsive_description": {
+            "type": "raw_html",
+            "tab": "content",
+            "section": "_section_responsive"
+        },
+        "hide_desktop": {
+            "type": "switcher",
+            "default": "",
+            "return_value": "hidden-desktop",
+            "tab": "content",
+            "section": "_section_responsive"
+        },
+        "hide_tablet": {
+            "type": "switcher",
+            "default": "",
+            "return_value": "hidden-tablet",
+            "tab": "content",
+            "section": "_section_responsive"
+        },
+        "hide_mobile": {
+            "type": "switcher",
+            "default": "",
+            "return_value": "hidden-mobile",
+            "tab": "content",
+            "section": "_section_responsive"
+        },
+        "section_custom_attributes_pro": {
+            "type": "section",
+            "tab": "content"
+        },
+        "custom_attributes_pro": {
+            "type": "raw_html",
+            "tab": "content",
+            "section": "section_custom_attributes_pro"
+        },
+        "section_custom_css_pro": {
+            "type": "section",
+            "tab": "content"
+        },
+        "custom_css_pro": {
+            "type": "raw_html",
+            "tab": "content",
+            "section": "section_custom_css_pro"
+        }
+    }
+}
