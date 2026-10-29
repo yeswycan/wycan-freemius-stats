@@ -1,0 +1,753 @@
+/**
+ * Wycan Freemius Stats, settings screen. Wycan admin frame shared with the other Wycan plugins:
+ * dark sidebar, content card, Satoshi served by the plugin, Wycan orange. Everything is scoped
+ * under .wfs-admin.
+ */
+
+@font-face {
+	font-family: "Satoshi";
+	src: url("../fonts/Satoshi/Satoshi-Variable.woff2") format("woff2");
+	font-weight: 300 900;
+	font-style: normal;
+	font-display: swap;
+}
+
+/* -------------------------------------------------------------------------
+   Tokens
+   ------------------------------------------------------------------------- */
+
+.wfs-admin,
+.wfs-admin *,
+.wfs-admin *::before,
+.wfs-admin *::after {
+	box-sizing: border-box;
+}
+
+.wfs-admin {
+	--wfs-primary: #ff6b35;
+	--wfs-primary-hover: #e95414;
+	--wfs-primary-light: #fff3ee;
+	--wfs-primary-border: #ffd5c2;
+	--wfs-dark: #0b0d0e;
+	--wfs-cream: #f2efea;
+	--wfs-surface: #ffffff;
+	--wfs-surface-alt: #f9fafb;
+	--wfs-border: #e5e7eb;
+	--wfs-border-strong: #d1d5db;
+	--wfs-text: #111827;
+	--wfs-text-2: #374151;
+	--wfs-muted: #6b7280;
+	--wfs-ok: #047857;
+	--wfs-ok-bg: #ecfdf5;
+	--wfs-warning: #92400e;
+	--wfs-warning-bg: #fffbeb;
+	--wfs-error: #b91c1c;
+	--wfs-error-bg: #fef2f2;
+	--wfs-info: #1e40af;
+	--wfs-info-bg: #eff6ff;
+	--wfs-radius-sm: 4px;
+	--wfs-radius: 8px;
+	--wfs-radius-lg: 12px;
+	--wfs-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+	--wfs-ring: 0 0 0 2px rgba(255, 107, 53, 0.35);
+	--wfs-font: "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	--wfs-mono: Menlo, Consolas, monospace;
+
+	margin: 40px 20px 0 0;
+	font-family: var(--wfs-font);
+	color: var(--wfs-text);
+}
+
+/* -------------------------------------------------------------------------
+   Frame: sidebar and content card
+   ------------------------------------------------------------------------- */
+
+.wfs-layout {
+	display: grid;
+	grid-template-columns: 230px minmax(0, 1fr);
+	min-height: 70vh;
+	overflow: hidden;
+	border: 1px solid var(--wfs-border);
+	border-radius: var(--wfs-radius-lg);
+	background: var(--wfs-surface);
+	box-shadow: var(--wfs-shadow);
+}
+
+.wfs-sidebar {
+	display: flex;
+	flex-direction: column;
+	background: var(--wfs-dark);
+}
+
+.wfs-sidebar-brand {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	padding: 24px 16px 20px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+	text-align: center;
+}
+
+.wfs-sidebar-logo-link {
+	display: block;
+	line-height: 0;
+	opacity: 0.95;
+}
+
+.wfs-sidebar-logo-link:hover,
+.wfs-sidebar-logo-link:focus {
+	opacity: 1;
+	box-shadow: none;
+}
+
+.wfs-sidebar-logo-link:focus-visible {
+	outline: 2px solid var(--wfs-primary);
+	outline-offset: 3px;
+}
+
+.wfs-sidebar-logo {
+	display: block;
+	width: 120px;
+	height: auto;
+}
+
+.wfs-sidebar-brand-name {
+	color: var(--wfs-cream);
+	font-size: 15px;
+	font-weight: 700;
+	letter-spacing: 0.01em;
+}
+
+.wfs-version-pill {
+	padding: 2px 8px;
+	border: 1px solid rgba(255, 107, 53, 0.35);
+	border-radius: 999px;
+	color: var(--wfs-primary);
+	font-size: 11px;
+	font-weight: 600;
+}
+
+.wfs-sidebar-nav {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 12px 10px 20px;
+}
+
+.wfs-nav-item {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	padding: 9px 12px;
+	border-radius: var(--wfs-radius-sm);
+	color: rgba(242, 239, 234, 0.6);
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 1.2;
+	text-decoration: none;
+	transition: background 0.12s, color 0.12s;
+}
+
+.wfs-nav-item svg {
+	flex: none;
+	width: 16px;
+	height: 16px;
+	opacity: 0.8;
+}
+
+.wfs-nav-item:hover,
+.wfs-nav-item:focus {
+	background: rgba(255, 255, 255, 0.06);
+	color: var(--wfs-cream);
+	box-shadow: none;
+}
+
+.wfs-nav-item:focus-visible {
+	outline: 2px solid var(--wfs-primary);
+	outline-offset: -2px;
+}
+
+.wfs-nav-item.is-active {
+	background: rgba(255, 107, 53, 0.14);
+	color: var(--wfs-primary);
+	font-weight: 600;
+}
+
+.wfs-nav-item.is-active svg {
+	opacity: 1;
+}
+
+.wfs-content {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	padding: 32px 36px 28px;
+}
+
+.wfs-admin .wfs-section-title {
+	margin: 0 0 4px;
+	padding: 0;
+	color: var(--wfs-text);
+	font-family: var(--wfs-font);
+	font-size: 20px;
+	font-weight: 700;
+	line-height: 1.25;
+}
+
+.wfs-section-subtitle {
+	margin: 0;
+	color: var(--wfs-muted);
+	font-size: 13px;
+}
+
+.wfs-section-divider {
+	height: 1px;
+	margin: 20px 0 8px;
+	background: var(--wfs-border);
+}
+
+.wfs-admin .wfs-section-group-title {
+	margin: 28px 0 8px;
+	color: var(--wfs-text);
+	font-family: var(--wfs-font);
+	font-size: 15px;
+	font-weight: 700;
+}
+
+.wfs-admin .notice {
+	margin: 12px 0;
+}
+
+.wfs-admin p {
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+.wfs-admin code {
+	padding: 2px 6px;
+	border-radius: var(--wfs-radius-sm);
+	background: var(--wfs-surface-alt);
+	font-family: var(--wfs-mono);
+	font-size: 12px;
+}
+
+.wfs-admin [hidden] {
+	display: none !important;
+}
+
+.wfs-muted {
+	color: var(--wfs-muted);
+}
+
+.wfs-text-error {
+	color: var(--wfs-error);
+}
+
+/* -------------------------------------------------------------------------
+   Toolbar, empty state, save bar
+   ------------------------------------------------------------------------- */
+
+.wfs-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px 24px;
+	margin: 12px 0 16px;
+}
+
+.wfs-toolbar-text {
+	flex: 1 1 320px;
+	margin: 0;
+	color: var(--wfs-text-2);
+}
+
+.wfs-empty {
+	margin: 0;
+	padding: 28px 20px;
+	border: 1px dashed var(--wfs-border-strong);
+	border-radius: var(--wfs-radius);
+	color: var(--wfs-muted);
+	text-align: center;
+}
+
+.wfs-save-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 16px;
+	margin-top: 12px;
+	padding: 24px 0 4px;
+	border-top: 1px solid var(--wfs-border);
+}
+
+.wfs-save-hint {
+	color: var(--wfs-warning);
+	font-size: 13px;
+	font-weight: 600;
+}
+
+/* -------------------------------------------------------------------------
+   Product cards
+   ------------------------------------------------------------------------- */
+
+.wfs-products {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.wfs-product {
+	border: 1px solid var(--wfs-border);
+	border-radius: var(--wfs-radius);
+	background: var(--wfs-surface);
+	transition: border-color 0.12s, box-shadow 0.12s;
+}
+
+.wfs-product.is-open {
+	border-color: var(--wfs-primary-border);
+	box-shadow: 0 0 0 1px var(--wfs-primary-border);
+}
+
+.wfs-product-head {
+	display: grid;
+	grid-template-columns: minmax(180px, 1.2fr) minmax(200px, 1.6fr) auto;
+	gap: 12px 24px;
+	align-items: start;
+	padding: 16px 18px;
+}
+
+.wfs-product-identity {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-width: 0;
+}
+
+.wfs-admin .wfs-product-name {
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	color: var(--wfs-text);
+	font-family: var(--wfs-font);
+	font-size: 15px;
+	font-weight: 700;
+	line-height: 1.3;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wfs-product-meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin: 0;
+	color: var(--wfs-muted);
+	font-size: 12px;
+}
+
+.wfs-product-status {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+	min-width: 0;
+}
+
+.wfs-product-detail {
+	margin: 0;
+	color: var(--wfs-text-2);
+	font-size: 12px;
+}
+
+.wfs-product-values {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px 20px;
+	margin: 0;
+}
+
+.wfs-product-values div {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+}
+
+.wfs-product-values dt {
+	color: var(--wfs-muted);
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.wfs-product-values dd {
+	margin: 0;
+	color: var(--wfs-text);
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.wfs-product-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+.wfs-product-body {
+	padding: 4px 18px 16px;
+	border-top: 1px solid var(--wfs-border);
+}
+
+/* Setting rows: label and help | control. */
+
+.wfs-setting-row {
+	display: grid;
+	grid-template-columns: 260px minmax(0, 1fr);
+	gap: 14px 32px;
+	align-items: start;
+	padding: 16px 0;
+	border-bottom: 1px solid var(--wfs-border);
+}
+
+.wfs-setting-row:last-of-type {
+	border-bottom: 0;
+}
+
+.wfs-setting-label label {
+	display: block;
+	color: var(--wfs-text);
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.wfs-setting-label p {
+	margin: 4px 0 0;
+	color: var(--wfs-muted);
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.wfs-setting-control {
+	min-width: 0;
+}
+
+.wfs-setting-control p:first-child {
+	margin-top: 0;
+}
+
+.wfs-field-desc {
+	display: block;
+	margin: 6px 0 0;
+	color: var(--wfs-muted);
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.wfs-check {
+	font-size: 13px;
+}
+
+.wfs-admin input[type="text"],
+.wfs-admin input[type="password"] {
+	border: 1px solid var(--wfs-border-strong);
+	border-radius: var(--wfs-radius-sm);
+	font-family: var(--wfs-font);
+	font-size: 13px;
+}
+
+.wfs-admin input:focus {
+	border-color: var(--wfs-primary);
+	box-shadow: var(--wfs-ring);
+	outline: none;
+}
+
+.wfs-admin input[type="checkbox"]:focus {
+	box-shadow: var(--wfs-ring);
+}
+
+.wfs-admin input.is-invalid {
+	border-color: var(--wfs-error);
+}
+
+/* Test result. */
+
+.wfs-test-result {
+	margin: 12px 0 0;
+	font-size: 13px;
+}
+
+.wfs-test-result:empty {
+	display: none;
+}
+
+.wfs-test-result.is-pending {
+	color: var(--wfs-muted);
+}
+
+.wfs-test-result.is-ok {
+	color: var(--wfs-ok);
+	font-weight: 600;
+}
+
+.wfs-test-result.is-error {
+	color: var(--wfs-error);
+	font-weight: 600;
+}
+
+/* -------------------------------------------------------------------------
+   Badges, notices, buttons
+   ------------------------------------------------------------------------- */
+
+.wfs-badge {
+	display: inline-block;
+	padding: 2px 10px;
+	border-radius: 999px;
+	background: var(--wfs-surface-alt);
+	color: var(--wfs-muted);
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.6;
+	white-space: nowrap;
+}
+
+.wfs-badge-ok {
+	background: var(--wfs-ok-bg);
+	color: var(--wfs-ok);
+}
+
+.wfs-badge-warning {
+	background: var(--wfs-warning-bg);
+	color: var(--wfs-warning);
+}
+
+.wfs-badge-error {
+	background: var(--wfs-error-bg);
+	color: var(--wfs-error);
+}
+
+.wfs-badge-default {
+	align-self: flex-start;
+	background: var(--wfs-primary-light);
+	color: var(--wfs-primary-hover);
+}
+
+.wfs-notice {
+	margin: 12px 0;
+	padding: 12px 16px;
+	border-left: 3px solid var(--wfs-info);
+	border-radius: var(--wfs-radius-sm);
+	background: var(--wfs-info-bg);
+	color: var(--wfs-text-2);
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+.wfs-notice-warning {
+	border-left-color: #d97706;
+	background: var(--wfs-warning-bg);
+}
+
+.wfs-admin .button-primary {
+	padding: 6px 20px;
+	border: 1px solid var(--wfs-primary-hover);
+	border-radius: var(--wfs-radius-sm);
+	background: var(--wfs-primary);
+	box-shadow: none;
+	color: #fff;
+	font-family: var(--wfs-font);
+	font-weight: 600;
+	text-shadow: none;
+}
+
+.wfs-admin .button-primary:hover,
+.wfs-admin .button-primary:focus {
+	border-color: var(--wfs-primary-hover);
+	background: var(--wfs-primary-hover);
+	color: #fff;
+}
+
+.wfs-admin .button-primary:focus {
+	box-shadow: var(--wfs-ring);
+}
+
+.wfs-admin .button:not(.button-primary) {
+	border-color: var(--wfs-border-strong);
+	border-radius: var(--wfs-radius-sm);
+	background: var(--wfs-surface);
+	color: var(--wfs-text-2);
+	font-family: var(--wfs-font);
+	font-weight: 500;
+}
+
+.wfs-admin .button:not(.button-primary):hover,
+.wfs-admin .button:not(.button-primary):focus {
+	border-color: var(--wfs-primary-border);
+	background: var(--wfs-primary-light);
+	color: var(--wfs-primary-hover);
+}
+
+.wfs-admin .button:focus-visible {
+	box-shadow: var(--wfs-ring);
+	outline: none;
+}
+
+.wfs-admin .button[disabled] {
+	opacity: 0.6;
+}
+
+.wfs-link-btn {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--wfs-primary-hover);
+	font: inherit;
+	font-size: 13px;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.wfs-link-btn.wfs-text-error {
+	color: var(--wfs-error);
+}
+
+.wfs-link-btn:focus-visible {
+	border-radius: 2px;
+	outline: 2px solid var(--wfs-primary);
+	outline-offset: 2px;
+}
+
+/* -------------------------------------------------------------------------
+   Usage
+   ------------------------------------------------------------------------- */
+
+.wfs-admin .wfs-table {
+	overflow: hidden;
+	border: 1px solid var(--wfs-border);
+	border-radius: var(--wfs-radius);
+	box-shadow: none;
+}
+
+.wfs-admin .wfs-table th,
+.wfs-admin .wfs-table td {
+	padding: 12px 14px;
+	border-bottom: 1px solid var(--wfs-border);
+	font-size: 13px;
+	vertical-align: middle;
+}
+
+.wfs-admin .wfs-table tr:last-child td {
+	border-bottom: 0;
+}
+
+.wfs-admin .wfs-table thead th {
+	background: var(--wfs-surface-alt);
+	font-weight: 600;
+}
+
+.wfs-attributes td:first-child {
+	width: 140px;
+}
+
+.wfs-attributes td:last-child {
+	width: 120px;
+}
+
+.wfs-copy {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+}
+
+.wfs-copy code {
+	user-select: all;
+}
+
+.wfs-list {
+	margin: 0 0 0 18px;
+	font-size: 13px;
+	line-height: 1.6;
+	list-style: disc;
+}
+
+.wfs-list li {
+	margin-bottom: 6px;
+}
+
+/* -------------------------------------------------------------------------
+   Responsive and motion
+   ------------------------------------------------------------------------- */
+
+@media (max-width: 1100px) {
+	.wfs-product-head {
+		grid-template-columns: minmax(0, 1fr) auto;
+	}
+
+	.wfs-product-status {
+		grid-column: 1 / -1;
+	}
+}
+
+@media (max-width: 960px) {
+	.wfs-admin {
+		margin-right: 10px;
+	}
+
+	.wfs-layout {
+		grid-template-columns: 1fr;
+	}
+
+	.wfs-sidebar-brand {
+		flex-direction: row;
+		justify-content: flex-start;
+		padding: 14px 16px;
+	}
+
+	.wfs-sidebar-logo {
+		width: 90px;
+	}
+
+	.wfs-sidebar-nav {
+		flex-direction: row;
+		flex-wrap: wrap;
+		padding: 8px;
+	}
+
+	.wfs-nav-item {
+		width: auto;
+	}
+
+	.wfs-content {
+		padding: 24px 18px;
+	}
+
+	.wfs-product-head {
+		grid-template-columns: 1fr;
+	}
+
+	.wfs-product-actions {
+		justify-content: flex-start;
+	}
+
+	.wfs-setting-row {
+		grid-template-columns: 1fr;
+		gap: 8px;
+	}
+
+	.wfs-admin input.regular-text {
+		width: 100%;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wfs-nav-item,
+	.wfs-product {
+		transition: none;
+	}
+}

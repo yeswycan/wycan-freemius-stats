@@ -1,0 +1,15 @@
+.git
+.gitignore
+.distignore
+.DS_Store
+.idea
+.vscode
+build.sh
+build
+dist
+node_modules
+plan.md
+tests
+*.zip
+*.log
+.env*
