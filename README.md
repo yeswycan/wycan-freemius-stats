@@ -1,215 +1,166 @@
 # Wycan Freemius Stats
 
-WordPress plugin to display the number of active installations of your plugins via the Freemius API.
+Extension WordPress interne de Wycan. Elle affiche sur wycan.fr le nombre d'installations et la dernière version publiée de nos plugins, lues depuis l'API Freemius : shortcodes `[freemius_installs]` et `[freemius_version]`, widget Elementor « Freemius Install Count », fonction PHP `wycan_get_freemius_installs()`.
 
-**Languages:** English (default), French (included)
+Textes de l'administration en anglais avec traduction française incluse. Les textes publics des compteurs (`format="text"`, messages d'erreur) restent volontairement en anglais : ils sont identiques à la version 1.x pour ne pas modifier les pages existantes.
 
-## Installation
+## Prérequis
 
-1. Download the `wycan-plugins-stats` folder
-2. Place it in `/wp-content/plugins/`
-3. Activate the plugin in WordPress
-4. Go to **Settings > Freemius Stats** to configure your products
+- WordPress : voir `Requires at least` dans l'en-tête du plugin (version testée : celle de wycan.fr).
+- PHP : voir `Requires PHP` (le code utilise la syntaxe de cette version).
+- Elementor pour le widget (version testée dans `Elementor tested up to`), ACF pour la lecture d'un slug par champ. Ni l'un ni l'autre n'est obligatoire pour les shortcodes avec `slug`.
+- Extension `sodium` (native ou polyfill fourni par WordPress) pour le chiffrement des jetons.
+
+## Installation et mise à jour
+
+1. Télécharger l'archive de la release GitHub (jamais le « Download ZIP » du dépôt).
+2. Déposer le dossier dans `wp-content/plugins/` **en remplaçant le dossier existant, sous le même nom** (sur wycan.fr : `wycan-plugins-stats`). Deux copies actives déclareraient les mêmes classes et provoqueraient une erreur fatale.
+3. Activer l'extension, puis ouvrir Réglages > Freemius Stats.
+
+À la première exécution de la 2.0.0, les jetons enregistrés par la 1.x sont chiffrés automatiquement, les lignes vides retirées, l'option sortie du chargement automatique et les anciens transitoires supprimés. La migration est idempotente.
+
+Retour arrière vers la 1.x : possible, mais les jetons chiffrés ne seront pas lisibles par l'ancienne version. Il faut alors les ressaisir.
 
 ## Configuration
 
-### Get your Freemius API Token
+Réglages > Freemius Stats > Produits.
 
-1. Log in to [Freemius Dashboard](https://dashboard.freemius.com)
-2. Select your product
-3. Go to **Settings**
-4. Click on the **API Token** tab
-5. Copy the **API Bearer Authorization Token**
+1. **Ajouter un produit**, coller l'identifiant Freemius et le jeton API du produit.
+   - Identifiant : tableau de bord Freemius, produit, Settings (en haut de la page).
+   - Jeton : tableau de bord Freemius, produit, Settings, onglet « API & Keys », « API Bearer Authorization Token ».
+2. **Tester la connexion** : le nom et le slug sont remplis depuis Freemius, le nombre d'installations s'affiche. Les erreurs sont distinguées : jeton refusé, produit introuvable, API injoignable, réponse invalide.
+3. **Enregistrer** : les valeurs sont synchronisées immédiatement et la carte affiche l'état du produit.
 
-### Configure your products
+Chaque carte montre l'état (Connecté, Jamais synchronisé, Jeton manquant, Jeton à ressaisir, Jeton refusé, Produit introuvable, API injoignable), les installations actives et totales, la dernière version et la date de synchronisation.
 
-In **Settings > Freemius Stats**, add your products with:
-- **Slug**: Unique identifier for the shortcode (e.g., `my-plugin`)
-- **Name**: Product display name
-- **Product ID**: Product ID in Freemius
-- **API Token**: The Bearer token copied previously
+**Ordre des produits.** Le premier produit de la liste est le produit par défaut des widgets Elementor en mode « Produit fixe » qui n'ont jamais reçu de choix explicite. Le retirer déclenche un avertissement. Les produits ne se réordonnent pas.
 
-## Usage
+**Slug.** Le slug sert aux shortcodes et au champ ACF. Le changer casse les pages qui utilisent l'ancien.
 
-### 1. Shortcode (ACF / Elementor)
+## Sécurité des jetons
 
-#### Method 1: With ACF field (recommended for dynamic templates)
+Un jeton de produit Freemius donne aussi des droits d'écriture sur ce produit (abonnements, clients, paiements). Le plugin le traite comme un mot de passe :
 
-**This method is ideal if you have a single template that generates all your product pages.**
+- chiffré en base (libsodium secretbox) avec une clé dérivée des clés de sécurité `AUTH_KEY` et `SECURE_AUTH_KEY` de `wp-config.php` ;
+- jamais renvoyé au navigateur : le champ est masqué, vide à l'affichage, et seuls les quatre derniers caractères sont indiqués ;
+- champ laissé vide = jeton conservé ; case « Supprimer le jeton enregistré » pour l'effacer ;
+- option `wycan_freemius_products` hors chargement automatique.
 
-1. Create an ACF field in your field group (e.g., `freemius_product_slug`)
-2. Fill in the Freemius product slug in this field for each product page
-3. Use the shortcode in your template:
+Limites : un export de la base seul ne révèle pas les jetons ; une copie de la base **et** de `wp-config.php` les révèle. Si les clés de sécurité sont régénérées, les jetons passent à l'état « Jeton à ressaisir » : les dernières valeurs connues restent affichées, il suffit de recoller les jetons.
 
-```
-[freemius_installs acf_field="freemius_product_slug"]
-```
-
-The plugin will automatically retrieve the slug from the ACF field of the current page.
-
-#### Method 2: With fixed slug
-
-For a specific page with a fixed product:
-
-```
-[freemius_installs slug="my-plugin"]
-```
-
-#### With options
-```
-[freemius_installs acf_field="freemius_product_slug" format="text" active_only="true"]
-```
-
-#### Available parameters
-
-- **acf_field**: The ACF field name containing the product slug (takes priority over `slug`)
-- **slug**: The hard-coded product slug (used if `acf_field` is not specified)
-- **format**: 
-  - `number` (default): Displays only the number (e.g., "1,234")
-  - `text`: Displays the full text (e.g., "1,234 active installations")
-- **active_only**:
-  - `true` (default): Counts only active installations
-  - `false`: Counts all installations
-
-### 2. PHP Function
-
-In your WordPress templates:
+Alternative : définir une constante par produit dans `wp-config.php`, prioritaire sur le jeton enregistré :
 
 ```php
-<?php
-$count = wycan_get_freemius_installs('my-plugin');
-if ($count !== false) {
-    echo number_format_i18n($count) . ' active installations';
+define( 'WFS_TOKEN_12345', 'jeton du produit 12345' );
+```
+
+## Utilisation
+
+L'onglet Utilisation de la page de réglages reprend tout ceci avec les shortcodes prêts à copier pour chaque produit.
+
+### Shortcode `[freemius_installs]`
+
+| Attribut | Rôle | Défaut |
+| --- | --- | --- |
+| `acf_field` | nom du champ ACF de la page courante qui contient le slug du produit ; prioritaire sur `slug` | |
+| `slug` | slug du produit | |
+| `format` | `number` (nombre seul) ou `text` (« 1 234 active installations ») | `number` |
+| `active_only` | `true` (installations actives) ou `false` (toutes) ; toute valeur autre que `true` vaut `false` | `true` |
+
+```
+[freemius_installs slug="mon-plugin"]
+[freemius_installs acf_field="freemius_product_slug" format="text" active_only="false"]
+```
+
+Rendu : `<span class="freemius-install-count">1 234</span>`. En cas d'erreur : `<span class="freemius-error">Error: …</span>`, visible par tous (comportement figé de la 1.x).
+
+### Shortcode `[freemius_version]`
+
+| Attribut | Rôle | Défaut |
+| --- | --- | --- |
+| `acf_field` | même règle que ci-dessus | |
+| `slug` | slug du produit | |
+| `field` | `version`, `date` (format de date du site), `requires` (WordPress minimal), `tested` (WordPress testé) | `version` |
+
+```
+[freemius_version slug="mon-plugin"]
+[freemius_version acf_field="freemius_product_slug" field="date"]
+```
+
+Seules les versions publiées sont lues, jamais les bêtas. Rendu : `<span class="freemius-version">1.4.2</span>`. En cas d'erreur, les visiteurs ne voient rien ; les utilisateurs capables d'éditer voient la raison. Utilisable dans le widget « Éditeur de texte » d'Elementor.
+
+### Widget Elementor « Freemius Install Count »
+
+Catégorie Général. Source : champ ACF (dynamique, par défaut, champ `freemius_product_slug`) ou produit fixe. Format nombre ou texte, installations actives seulement (par défaut oui), texte avant et après, couleur, typographie, alignement.
+
+Rendu : `<div class="freemius-install-count-wrapper"><span class="prefix">Plus de </span><span class="freemius-install-count">1 234</span><span class="suffix"> utilisateurs</span></div>`.
+
+### Fonction PHP
+
+```php
+$count = wycan_get_freemius_installs( 'mon-plugin' );        // actives
+$count = wycan_get_freemius_installs( 'mon-plugin', false ); // toutes
+if ( false !== $count ) {
+	echo number_format_i18n( $count );
 }
-?>
 ```
 
-With parameter to include inactive installations:
+La classe `Wycan_Freemius_Stats` de la 1.x reste disponible (`Wycan_Freemius_Stats::get_instance()->get_install_count( $slug, $active_only )`).
 
-```php
-<?php
-$count = wycan_get_freemius_installs('my-plugin', false);
-?>
-```
+## Rafraîchissement des valeurs
 
-### 3. Elementor Widget
+- Les pages publiques n'appellent jamais Freemius : elles lisent la dernière valeur connue, stockée dans l'option `wycan_freemius_counts`.
+- Une tâche WP-Cron horaire (`wfs_sync_all`) resynchronise tous les produits : installations actives, totales et dernière version. Une valeur servie alors qu'elle a plus d'une heure déclenche en plus un rafraîchissement en arrière-plan, sans attente pour la page.
+- L'enregistrement d'un produit nouveau ou dont le jeton change le synchronise immédiatement.
+- Premier affichage d'un produit sans aucune valeur : un appel synchrone de 5 secondes au plus, puis 5 minutes sans nouvel essai en cas d'échec.
+- En cas de panne Freemius, la dernière valeur reste affichée et l'erreur apparaît sur la carte du produit.
 
-1. Edit your page with Elementor
-2. Search for the **"Freemius Install Count"** widget
-3. Drag and drop the widget into your page
-4. Configure:
-   - **Product source**:
-     - **ACF field (dynamic)**: Retrieves the slug from an ACF field (ideal for templates)
-     - **Fixed product**: Select a specific product
-   - If you choose "ACF field", enter the field name (e.g., `freemius_product_slug`)
-   - Choose the display format
-   - Add text before/after (optional)
-   - Customize the style (color, typography, alignment)
+Avec un cache de pages (LiteSpeed), le compteur affiché suit le cycle de ce cache : un décalage de quelques heures est sans conséquence.
 
-## Usage Examples
+## Dépannage
 
-### Dynamic template with ACF (main use case)
+| Symptôme | Cause probable | Action |
+| --- | --- | --- |
+| `Error: Unable to retrieve data for "x"` | slug inconnu, identifiant manquant, premier affichage sans valeur et API en panne | vérifier la carte du produit, tester la connexion |
+| État « Jeton refusé » | jeton d'un autre produit, ou révoqué | recoller le jeton du bon produit |
+| État « Produit introuvable » | identifiant erroné | corriger l'identifiant |
+| État « Jeton à ressaisir » | clés de sécurité WordPress changées | recoller le jeton, ou définir la constante `WFS_TOKEN_{id}` |
+| Valeurs qui ne bougent pas | WP-Cron inactif (`DISABLE_WP_CRON`) sans cron système | configurer un cron système sur `wp-cron.php`, ou enregistrer la page Produits pour forcer une synchronisation |
+| Widget qui affiche le mauvais produit | premier produit de la liste supprimé | choisir explicitement le produit dans le widget |
 
-**Scenario**: You have a Custom Post Type "Plugins" with a single template that displays all your product pages.
+## Désinstallation
 
-1. **Create an ACF field** in your field group:
-   - Field name: `freemius_product_slug`
-   - Type: Text
-   - Associated with your "Plugins" CPT
+La suppression de l'extension efface les options `wycan_freemius_products`, `wycan_freemius_counts` et `wycan_freemius_stats_version`, les anciens transitoires `freemius_count_*` et les tâches planifiées. Une constante `WFS_TOKEN_*` dans `wp-config.php` reste à retirer à la main.
 
-2. **In each product page**, fill in the corresponding Freemius slug (e.g., `wycan-seo-plugin`)
-
-3. **In your Elementor template** (or PHP template), add:
-   - **With Elementor widget**: Add the "Freemius Install Count" widget, choose "ACF field (dynamic)" and enter `freemius_product_slug`
-   - **With shortcode**: `[freemius_installs acf_field="freemius_product_slug"]`
-
-The installation count will automatically display for each product!
-
-### In a custom PHP template
-
-```php
-<div class="plugin-stats">
-    <h3>Number of users</h3>
-    <p class="install-count">
-        <?php echo do_shortcode('[freemius_installs acf_field="freemius_product_slug"]'); ?>
-    </p>
-</div>
-```
-
-### In Elementor with fixed slug
-
-1. Add a **Shortcode** or **HTML** widget
-2. Insert: `[freemius_installs slug="my-plugin"]`
-3. Or use the dedicated **Freemius Install Count** widget in "Fixed product" mode
-
-### Conditional display
-
-```php
-<?php
-$count = wycan_get_freemius_installs('my-plugin');
-if ($count !== false && $count > 1000) {
-    echo 'More than ' . number_format_i18n($count) . ' satisfied users!';
-}
-?>
-```
-
-## Cache
-
-Data is cached for **1 hour** to optimize performance and avoid overloading the Freemius API.
-
-To force cache refresh, you can use:
-
-```php
-delete_transient('freemius_count_my-plugin_active');
-```
-
-## Troubleshooting
-
-### The count doesn't display
-
-1. Check that the product slug is correct
-2. Check that the Product ID and API Token are correct in the settings
-3. Check WordPress error logs
-4. Test the API manually with curl:
-
-```bash
-curl -H "Authorization: Bearer YOUR_TOKEN" \
-  "https://api.freemius.com/v1/products/YOUR_PRODUCT_ID/installs/count.json?is_active=true"
-```
-
-### Error message "Unable to retrieve data"
-
-- Check your internet connection
-- Check that the API Token is valid
-- Check that the Product ID is correct
-
-## Freemius API
-
-This plugin uses the following Freemius API endpoint:
+## Développement
 
 ```
-GET /v1/products/{product_id}/installs/count.json
+wycan-freemius-stats.php   en-tête, constantes, chargeur PSR-4, amorçage, façade 1.x
+uninstall.php
+src/                       espace de noms Wycan\FreemiusStats\
+  Admin/                   page de réglages (trame Wycan), test de connexion
+  Api/                     client Freemius
+  Counts/                  valeurs durables, synchronisation, planification
+  Front/                   shortcodes et widget (rendu figé)
+  Products/                option produits et nettoyage
+  Security/                chiffrement et résolution des jetons
+  Upgrade/                 migrations versionnées
+assets/admin/              CSS et JS de la page de réglages, sans build
+assets/fonts/Satoshi/      police servie par le plugin
+languages/                 .pot, .po et .mo français
+tests/                     instantanés HTML et scripts de test (exclus de l'archive)
 ```
 
-Documentation: [https://docs.freemius.com/api/installations](https://docs.freemius.com/api/installations)
+Traductions : `.pot` généré par `wp i18n make-pot`, `.mo` compilé par `msgfmt` (`build.sh` le recompile).
 
-## Translations
+Tests : `tests/capture-snapshots.php` capture le HTML du front pour toutes les combinaisons du shortcode et du widget, avec des réponses Freemius simulées ; `tests/snapshots/v1.1.0/` contient la référence capturée sur la 1.1.0 et `tests/compare-snapshots.sh` compare. `tests/test-migration.php` et `tests/test-sync.php` couvrent la migration, le nettoyage de l'option, les jetons, la synchronisation et le shortcode de version. Aucun jeton réel n'est utilisé.
 
-The plugin is fully translatable and includes:
-- **English** (default)
-- **French** (included)
-
-To compile the French translation:
-1. Install [Poedit](https://poedit.net/) (free)
-2. Open `languages/wycan-freemius-stats-fr_FR.po`
-3. Save the file (Cmd/Ctrl+S) to generate the `.mo` file
-
-Other languages can be added by translating the `.po` file.
+Archive : `./build.sh [nom-du-dossier]` produit `dist/<dossier>-<version>.zip` (défaut : `wycan-plugins-stats`, le dossier installé sur wycan.fr).
 
 ## Support
 
-For any questions or issues, contact Wycan support.
+Pour toute question, contacter Wycan.
 
-## License
+## Licence
 
-GPL v2 or later
+GPL v2 ou ultérieure.
