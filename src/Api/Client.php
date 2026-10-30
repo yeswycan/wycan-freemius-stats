@@ -77,6 +77,49 @@ final class Client {
 		);
 	}
 
+	/**
+	 * GET /products/{id}/installs.json?count=1 (any install unlocks the update endpoint).
+	 */
+	public function first_install_id( string $product_id, string $token, int $timeout ): ApiResult {
+		$result = $this->get( '/products/' . rawurlencode( $product_id ) . '/installs.json?count=1', $token, $timeout );
+		if ( ! $result->ok ) {
+			return $result;
+		}
+		if ( ! is_array( $result->data['installs'] ?? null ) ) {
+			return ApiResult::failure( ApiResult::ERROR_INVALID, 'The response has no "installs" field.', $result->status );
+		}
+		$id = $result->data['installs'][0]['id'] ?? null;
+		if ( null === $id ) {
+			return ApiResult::failure( ApiResult::ERROR_NOT_FOUND, 'The product has no install yet.', $result->status );
+		}
+		$id = is_int( $id ) ? (string) $id : $id;
+		if ( ! is_string( $id ) || ! ctype_digit( $id ) ) {
+			return ApiResult::failure( ApiResult::ERROR_INVALID, 'The response has no valid install "id".', $result->status );
+		}
+		return ApiResult::success( [ 'install_id' => $id ], $result->status );
+	}
+
+	/**
+	 * GET /products/{id}/installs/{install_id}/updates/latest.json with the readme.
+	 * Only the version and the changelog are kept: the response also carries a signed download link.
+	 */
+	public function latest_changelog( string $product_id, string $install_id, string $token, int $timeout ): ApiResult {
+		$path   = '/products/' . rawurlencode( $product_id ) . '/installs/' . rawurlencode( $install_id ) . '/updates/latest.json?readme=true&type=released&is_premium=true';
+		$result = $this->get( $path, $token, $timeout );
+		if ( ! $result->ok ) {
+			return $result;
+		}
+		$version   = $result->data['version'] ?? null;
+		$changelog = $result->data['readme']['sections']['changelog'] ?? null;
+		if ( ! is_string( $version ) || '' === $version ) {
+			return ApiResult::failure( ApiResult::ERROR_INVALID, 'The response has no "version" field.', $result->status );
+		}
+		if ( ! is_string( $changelog ) || '' === trim( $changelog ) ) {
+			return ApiResult::failure( ApiResult::ERROR_INVALID, 'The readme has no changelog section.', $result->status );
+		}
+		return ApiResult::success( [ 'version' => $version, 'changelog' => $changelog ], $result->status );
+	}
+
 	private function get( string $path, string $token, int $timeout ): ApiResult {
 		$response = wp_remote_get(
 			self::BASE_URL . $path,

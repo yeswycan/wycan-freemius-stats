@@ -1,9 +1,10 @@
 <?php
 /**
- * Test de la synchronisation en arrière-plan, du cache négatif et du shortcode [freemius_version].
+ * Test de la synchronisation en arrière-plan, du cache négatif, du shortcode [freemius_version]
+ * et du changelog.
  *
  * Usage : php -d mysqli.default_socket=<socket> tests/test-sync.php <chemin wordpress>
- * Le plugin 2.0.0 doit être actif. Les options sont restaurées à la fin. Aucun jeton réel.
+ * Le plugin 2.1.0 doit être actif. Les options sont restaurées à la fin. Aucun jeton réel.
  */
 
 declare( strict_types=1 );
@@ -37,15 +38,35 @@ function check( string $label, bool $ok, string $detail = '' ): void {
 	}
 }
 
+/**
+ * Changelog fidèle à la réponse réelle de updates/latest.json : un h4 par version, une liste
+ * à puces, du code et des entités. Le script doit disparaître au passage de wp_kses_post.
+ */
+function changelog_fixture( string $version, int $older = 2, int $padding = 0 ): string {
+	$entry = static fn( string $v, string $extra ): string => "<h4>{$v}</h4>\n\n<ul>\n<li>NEW: <code>[freemius_changelog]</code> shortcode</li>\n<li>FIX: <code>\$wpdb-&gt;prepare()</code> everywhere</li>\n{$extra}</ul>";
+	$html  = $entry( $version, '<li>SECURITY: <script>alert(1)</script>escaped</li>' . "\n" . ( $padding ? '<li>' . str_repeat( 'x', $padding ) . "</li>\n" : '' ) );
+	for ( $i = $older; $i > 0; --$i ) {
+		$html .= "\n\n" . $entry( '1.' . $i, $padding ? '<li>' . str_repeat( 'y', $padding ) . "</li>\n" : '' );
+	}
+	return $html;
+}
+
+$released    = '1.4.2';
+$install_ids = [ '1001' => '7001', '1002' => '7101' ];
+$gone        = [];
+$no_install  = [];
+$big         = false;
+$huge        = false;
+
 $calls = [];
 add_filter(
 	'pre_http_request',
-	static function ( $pre, array $args, string $url ) use ( &$calls ) {
+	static function ( $pre, array $args, string $url ) use ( &$calls, &$released, &$install_ids, &$gone, &$no_install, &$big, &$huge ) {
 		$calls[] = $url;
-		$ok      = static fn( array $data ): array => [
+		$ok      = static fn( array $data, int $code = 200 ): array => [
 			'headers'  => [],
 			'body'     => json_encode( $data ),
-			'response' => [ 'code' => 200, 'message' => 'OK' ],
+			'response' => [ 'code' => $code, 'message' => 200 === $code ? 'OK' : 'Not Found' ],
 			'cookies'  => [],
 			'filename' => null,
 		];
@@ -59,11 +80,36 @@ add_filter(
 			return $ok(
 				[
 					'id'                       => '555',
-					'version'                  => '1.4.2',
+					'version'                  => $released,
 					'created'                  => '2026-03-06 23:30:00',
 					'requires_platform_version' => '6.7',
 					'tested_up_to_version'     => '7.1',
 					'release_mode'             => 'released',
+				]
+			);
+		}
+		if ( preg_match( '#/products/(\d+)/installs\.json\?count=1$#', $url, $m ) ) {
+			return $ok( [ 'installs' => isset( $no_install[ $m[1] ] ) ? [] : [ [ 'id' => $install_ids[ $m[1] ] ?? '7' . $m[1], 'version' => '1.4.0', 'url' => 'https://client.example.invalid' ] ] ] );
+		}
+		if ( preg_match( '#/products/(\d+)/installs/(\d+)/updates/latest\.json\?readme=true&type=released&is_premium=true$#', $url, $m ) ) {
+			if ( in_array( $m[2], $gone, true ) ) {
+				return $ok( [ 'error' => [ 'message' => 'Install not found.' ] ], 404 );
+			}
+			return $ok(
+				[
+					'plugin_id'    => $m[1],
+					'version'      => $released,
+					'release_mode' => 'released',
+					'is_released'  => false,
+					'readme'       => [
+						'name'          => 'Wycan Alpha',
+						'stable_tag'    => $released,
+						'sections'      => [
+							'description' => '<p>Description.</p>',
+							'changelog'   => changelog_fixture( $released, $big ? 300 : 2, $big ? 900 : ( $huge ? 210 * 1024 : 0 ) ),
+						],
+						'download_link' => 'https://download.example.invalid/updates/1.zip?authorization=FSLA+SECRET',
+					],
 				]
 			);
 		}
@@ -74,6 +120,7 @@ add_filter(
 );
 
 $plugin = Plugin::instance();
+$hits   = static fn( array $calls, string $needle ): int => count( array_filter( $calls, static fn( string $url ) => str_contains( $url, $needle ) ) );
 $backup = [
 	Repository::OPTION => get_option( Repository::OPTION ),
 	CountStore::OPTION => get_option( CountStore::OPTION ),
@@ -94,11 +141,16 @@ $products = [
 // 1. Enregistrement : synchronisation immédiate des produits nouveaux.
 $calls = [];
 update_option( Repository::OPTION, $products, false );
-check( 'enregistrement : 3 appels par produit (actifs, totaux, version)', 9 === count( $calls ), (string) count( $calls ) );
+check( 'enregistrement : actifs, totaux, version, installation, changelog ; la panne s\'arrête à la version', 13 === count( $calls ), (string) count( $calls ) );
 $store = new CountStore();
 check( 'compteurs stockés', 1234 === $store->count( '1001', true ) && 1500 === $store->count( '1001', false ) );
 check( 'version stockée', '1.4.2' === ( $store->version( '1001' )['version'] ?? null ) );
 check( 'erreur de la panne conservée', 'network' === ( $store->error( '1005' )['code'] ?? null ) );
+$changelog = $store->changelog( '1001' );
+check( 'changelog stocké pour la version publiée', '1.4.2' === ( $changelog['version'] ?? null ) && str_starts_with( $changelog['html'] ?? '', '<h4>1.4.2</h4>' ) && false === $changelog['truncated'] );
+check( 'changelog passé par wp_kses_post', ! str_contains( $changelog['html'] ?? '', '<script' ) && str_contains( $changelog['html'] ?? '', '<code>$wpdb-&gt;prepare()</code>' ) );
+check( 'identifiant d\'installation résolu et stocké', '7001' === $store->install_id( '1001' ) );
+check( 'ni lien signé ni donnée d\'installation stockés', ! str_contains( (string) wp_json_encode( get_option( CountStore::OPTION ) ), 'example.invalid' ) );
 
 // 2. Front : aucun appel réseau quand une valeur existe.
 $calls = [];
@@ -165,7 +217,72 @@ check( 'éditeur, slug inconnu : message', str_starts_with( do_shortcode( '[free
 check( 'éditeur, panne : message', str_contains( do_shortcode( '[freemius_version slug="wycan-panne"]' ), 'wycan-panne' ) );
 wp_set_current_user( 0 );
 
-// 8. Suppression d'un produit : valeurs purgées.
+// 8. Changelog : récupéré seulement quand la version publiée change.
+$released = '1.5.0';
+$calls    = [];
+do_action( Scheduler::HOOK_PRODUCT, '1001' );
+check( 'nouvelle version : changelog récupéré, identifiant connu réutilisé', 4 === count( $calls ) && 1 === $hits( $calls, '/updates/latest.json' ) && 0 === $hits( $calls, '/installs.json' ), implode( ' ', $calls ) );
+check( 'changelog de la nouvelle version', str_starts_with( $plugin->store->changelog( '1001' )['html'] ?? '', '<h4>1.5.0</h4>' ) );
+$calls = [];
+do_action( Scheduler::HOOK_PRODUCT, '1001' );
+check( 'même version : changelog non redemandé', 3 === count( $calls ) && 0 === $hits( $calls, '/updates/' ) );
+
+$gone[]              = '7001';
+$install_ids['1001'] = '7002';
+$released            = '1.6.0';
+$calls               = [];
+do_action( Scheduler::HOOK_PRODUCT, '1001' );
+check( 'installation disparue (404) : nouvel identifiant résolu puis appel rejoué', 6 === count( $calls ) && str_contains( $calls[3], '/installs/7001/' ) && str_contains( $calls[4], '/installs.json' ) && str_contains( $calls[5], '/installs/7002/' ), implode( ' ', $calls ) );
+check( 'nouvel identifiant stocké, changelog à jour', '7002' === $plugin->store->install_id( '1001' ) && '1.6.0' === ( $plugin->store->changelog( '1001' )['version'] ?? null ) );
+
+$big      = true;
+$released = '1.7.0';
+do_action( Scheduler::HOOK_PRODUCT, '1001' );
+$big       = false;
+$changelog = $plugin->store->changelog( '1001' );
+check( 'changelog trop long : plafonné à 200 Ko', true === ( $changelog['truncated'] ?? null ) && strlen( $changelog['html'] ) <= 200 * KB_IN_BYTES, (string) strlen( $changelog['html'] ?? '' ) );
+check( 'troncature à la dernière entrée complète', str_starts_with( $changelog['html'], '<h4>1.7.0</h4>' ) && str_ends_with( $changelog['html'], '</ul>' ) && substr_count( $changelog['html'], '<h4>' ) === substr_count( $changelog['html'], '</ul>' ) && substr_count( $changelog['html'], '<h4>' ) < 301 );
+
+$huge     = true;
+$released = '1.8.0';
+do_action( Scheduler::HOOK_PRODUCT, '1001' );
+$huge = false;
+check( 'première entrée seule au delà du plafond : ancien changelog conservé', '1.7.0' === ( $plugin->store->changelog( '1001' )['version'] ?? null ) && 'invalid' === ( $plugin->store->changelog_error( '1001' )['code'] ?? null ) );
+check( 'échec du changelog sans effet sur l\'état des compteurs', null === $plugin->store->error( '1001' ) );
+do_action( Scheduler::HOOK_PRODUCT, '1001' );
+check( 'synchronisation suivante : changelog récupéré, erreur effacée', '1.8.0' === ( $plugin->store->changelog( '1001' )['version'] ?? null ) && null === $plugin->store->changelog_error( '1001' ) );
+
+$no_install['1002'] = true;
+$all                = get_option( CountStore::OPTION );
+unset( $all['1002']['install_id'], $all['1002']['changelog'] );
+update_option( CountStore::OPTION, $all, false );
+$fresh->setValue( $plugin->store, null );
+do_action( Scheduler::HOOK_PRODUCT, '1002' );
+unset( $no_install['1002'] );
+check( 'produit sans installation : erreur du changelog à part, compteurs intacts', 'not_found' === ( $plugin->store->changelog_error( '1002' )['code'] ?? null ) && null === $plugin->store->error( '1002' ) && 1234 === $plugin->store->count( '1002', true ) );
+
+// Lecture front : dernière valeur connue, cache négatif, appel synchrone au premier affichage.
+$alpha = $plugin->products->find( 'wycan-alpha' );
+$beta  = $plugin->products->find( 'wycan-beta' );
+$panne = $plugin->products->find( 'wycan-panne' );
+$calls = [];
+check( 'front : changelog connu servi sans réseau', '1.8.0' === ( $plugin->versions->changelog( $alpha )['version'] ?? null ) && [] === $calls );
+check( 'front : échec récent, pas de nouvel appel pendant 5 minutes', null === $plugin->versions->changelog( $beta ) && [] === $calls );
+$all = get_option( CountStore::OPTION );
+unset( $all['1002']['failed']['changelog'] );
+update_option( CountStore::OPTION, $all, false );
+$fresh->setValue( $plugin->store, null );
+check( 'front : premier affichage, installation puis changelog en synchrone', str_starts_with( $plugin->versions->changelog( $beta )['html'] ?? '', '<h4>1.8.0</h4>' ) && 2 === count( $calls ), implode( ' ', $calls ) );
+$all = get_option( CountStore::OPTION );
+unset( $all['1005'] );
+update_option( CountStore::OPTION, $all, false );
+$fresh->setValue( $plugin->store, null );
+$calls = [];
+check( 'front : panne, rien après un appel', null === $plugin->versions->changelog( $panne ) && 1 === count( $calls ) );
+$calls = [];
+check( 'front : panne, pas de nouvel appel pendant 5 minutes', null === $plugin->versions->changelog( $panne ) && [] === $calls );
+
+// 9. Suppression d'un produit : valeurs purgées.
 $calls   = [];
 $current = get_option( Repository::OPTION );
 update_option( Repository::OPTION, [ $current[0] ], false ); // jeton déjà chiffré : inchangé
