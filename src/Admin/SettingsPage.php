@@ -124,15 +124,11 @@ final class SettingsPage {
 
 		echo '<div class="wfs-product-status">';
 		if ( null !== $state ) {
-			printf( '<span class="wfs-badge wfs-badge-%s">%s</span>', esc_attr( $state['tone'] ), esc_html( $state['label'] ) );
-			if ( '' !== $state['detail'] ) {
-				echo '<p class="wfs-product-detail">' . esc_html( $state['detail'] ) . '</p>';
-			}
+			$this->state( $state );
 			$this->values( $product, $store );
 			$changelog_state = ProductState::changelog( $product, $store );
 			if ( null !== $changelog_state ) {
-				printf( '<span class="wfs-badge wfs-badge-%s">%s</span>', esc_attr( $changelog_state['tone'] ), esc_html( $changelog_state['label'] ) );
-				echo '<p class="wfs-product-detail">' . esc_html( $changelog_state['detail'] ) . '</p>';
+				$this->state( $changelog_state );
 			}
 		}
 		echo '</div>';
@@ -196,6 +192,16 @@ final class SettingsPage {
 
 		echo '<p class="wfs-test-result" role="status" aria-live="polite" data-wfs-test-result></p>';
 		echo '</div></article>';
+	}
+
+	/**
+	 * @param array{label: string, tone: string, detail: string} $state
+	 */
+	private function state( array $state ): void {
+		printf( '<span class="wfs-badge wfs-badge-%s">%s</span>', esc_attr( $state['tone'] ), esc_html( $state['label'] ) );
+		if ( '' !== $state['detail'] ) {
+			echo '<p class="wfs-product-detail">' . esc_html( $state['detail'] ) . '</p>';
+		}
 	}
 
 	private function row( string $for, string $label, string $help, string $control ): void {
@@ -289,26 +295,14 @@ final class SettingsPage {
 			printf(
 				'<div><dt>%s</dt><dd>%s</dd></div>',
 				esc_html__( 'Changelog', 'wycan-freemius-stats' ),
-				esc_html(
-					$changelog['version'] . ', ' . sprintf(
-						/* translators: %s: human readable delay */
-						__( '%s ago', 'wycan-freemius-stats' ),
-						human_time_diff( $changelog['at'] )
-					)
-				)
+				esc_html( $changelog['version'] . ', ' . ProductState::ago( $changelog['at'] ) )
 			);
 		}
 		if ( $synced > 0 ) {
 			printf(
 				'<div><dt>%s</dt><dd>%s</dd></div>',
 				esc_html__( 'Synchronized', 'wycan-freemius-stats' ),
-				esc_html(
-					sprintf(
-						/* translators: %s: human readable delay */
-						__( '%s ago', 'wycan-freemius-stats' ),
-						human_time_diff( $synced )
-					)
-				)
+				esc_html( ProductState::ago( $synced ) )
 			);
 		}
 		echo '</dl>';

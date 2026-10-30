@@ -100,15 +100,19 @@ final class ProductState {
 		return null;
 	}
 
+	public static function ago( int $timestamp ): string {
+		return sprintf(
+			/* translators: %s: human readable delay */
+			__( '%s ago', 'wycan-freemius-stats' ),
+			human_time_diff( $timestamp )
+		);
+	}
+
 	/**
 	 * @param array{code: string, message: string, status: int, at: int} $error
 	 */
 	private static function error_detail( array $error, bool $has_value ): string {
-		$when = $error['at'] > 0 ? sprintf(
-			/* translators: %s: human readable delay */
-			__( '%s ago', 'wycan-freemius-stats' ),
-			human_time_diff( $error['at'] )
-		) : '';
+		$when = $error['at'] > 0 ? self::ago( $error['at'] ) : '';
 		$suffix = $has_value ? ' ' . __( 'The last known value is still displayed.', 'wycan-freemius-stats' ) : '';
 		return trim( $when . ( '' !== $error['message'] ? ': ' . $error['message'] : '' ) ) . $suffix;
 	}
