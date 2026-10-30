@@ -20,6 +20,7 @@ use Wycan\FreemiusStats\Counts\InstallCounts;
 use Wycan\FreemiusStats\Counts\Scheduler;
 use Wycan\FreemiusStats\Counts\Sync;
 use Wycan\FreemiusStats\Counts\Versions;
+use Wycan\FreemiusStats\Front\ChangelogShortcode;
 use Wycan\FreemiusStats\Front\InstallCountWidget;
 use Wycan\FreemiusStats\Front\Shortcode;
 use Wycan\FreemiusStats\Front\VersionShortcode;
@@ -87,6 +88,7 @@ final class Plugin {
 		$this->products->register_setting();
 		( new Shortcode( $this ) )->register();
 		( new VersionShortcode( $this ) )->register();
+		( new ChangelogShortcode( $this ) )->register();
 	}
 
 	/**

@@ -124,11 +124,12 @@ final class SettingsPage {
 
 		echo '<div class="wfs-product-status">';
 		if ( null !== $state ) {
-			printf( '<span class="wfs-badge wfs-badge-%s">%s</span>', esc_attr( $state['tone'] ), esc_html( $state['label'] ) );
-			if ( '' !== $state['detail'] ) {
-				echo '<p class="wfs-product-detail">' . esc_html( $state['detail'] ) . '</p>';
-			}
+			$this->state( $state );
 			$this->values( $product, $store );
+			$changelog_state = ProductState::changelog( $product, $store );
+			if ( null !== $changelog_state ) {
+				$this->state( $changelog_state );
+			}
 		}
 		echo '</div>';
 
@@ -191,6 +192,16 @@ final class SettingsPage {
 
 		echo '<p class="wfs-test-result" role="status" aria-live="polite" data-wfs-test-result></p>';
 		echo '</div></article>';
+	}
+
+	/**
+	 * @param array{label: string, tone: string, detail: string} $state
+	 */
+	private function state( array $state ): void {
+		printf( '<span class="wfs-badge wfs-badge-%s">%s</span>', esc_attr( $state['tone'] ), esc_html( $state['label'] ) );
+		if ( '' !== $state['detail'] ) {
+			echo '<p class="wfs-product-detail">' . esc_html( $state['detail'] ) . '</p>';
+		}
 	}
 
 	private function row( string $for, string $label, string $help, string $control ): void {
@@ -257,15 +268,16 @@ final class SettingsPage {
 		if ( '' === $product['product_id'] ) {
 			return;
 		}
-		$active  = $store->count( $product['product_id'], true );
-		$total   = $store->count( $product['product_id'], false );
-		$version = $store->version( $product['product_id'] );
-		$synced  = max(
+		$active    = $store->count( $product['product_id'], true );
+		$total     = $store->count( $product['product_id'], false );
+		$version   = $store->version( $product['product_id'] );
+		$changelog = $store->changelog( $product['product_id'] );
+		$synced    = max(
 			$store->synced_at( $product['product_id'], CountStore::FIELD_ACTIVE ),
 			$store->synced_at( $product['product_id'], CountStore::FIELD_ALL ),
 			$store->synced_at( $product['product_id'], CountStore::FIELD_VERSION )
 		);
-		if ( null === $active && null === $total && null === $version ) {
+		if ( null === $active && null === $total && null === $version && null === $changelog ) {
 			return;
 		}
 
@@ -279,17 +291,18 @@ final class SettingsPage {
 		if ( null !== $version ) {
 			printf( '<div><dt>%s</dt><dd>%s</dd></div>', esc_html__( 'Version', 'wycan-freemius-stats' ), esc_html( $version['version'] ) );
 		}
+		if ( null !== $changelog ) {
+			printf(
+				'<div><dt>%s</dt><dd>%s</dd></div>',
+				esc_html__( 'Changelog', 'wycan-freemius-stats' ),
+				esc_html( $changelog['version'] . ', ' . ProductState::ago( $changelog['at'] ) )
+			);
+		}
 		if ( $synced > 0 ) {
 			printf(
 				'<div><dt>%s</dt><dd>%s</dd></div>',
 				esc_html__( 'Synchronized', 'wycan-freemius-stats' ),
-				esc_html(
-					sprintf(
-						/* translators: %s: human readable delay */
-						__( '%s ago', 'wycan-freemius-stats' ),
-						human_time_diff( $synced )
-					)
-				)
+				esc_html( ProductState::ago( $synced ) )
 			);
 		}
 		echo '</dl>';
@@ -308,18 +321,20 @@ final class SettingsPage {
 		} else {
 			echo '<table class="widefat wfs-table"><thead><tr>';
 			printf(
-				'<th scope="col">%s</th><th scope="col">%s</th><th scope="col">%s</th>',
+				'<th scope="col">%s</th><th scope="col">%s</th><th scope="col">%s</th><th scope="col">%s</th>',
 				esc_html__( 'Product', 'wycan-freemius-stats' ),
 				esc_html__( 'Install count', 'wycan-freemius-stats' ),
-				esc_html__( 'Latest version', 'wycan-freemius-stats' )
+				esc_html__( 'Latest version', 'wycan-freemius-stats' ),
+				esc_html__( 'Changelog', 'wycan-freemius-stats' )
 			);
 			echo '</tr></thead><tbody>';
 			foreach ( $products as $product ) {
 				printf(
-					'<tr><td>%s</td><td>%s</td><td>%s</td></tr>',
+					'<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
 					esc_html( '' !== $product['name'] ? $product['name'] : $product['slug'] ),
 					$this->copyable( '[freemius_installs slug="' . $product['slug'] . '"]' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside.
-					$this->copyable( '[freemius_version slug="' . $product['slug'] . '"]' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside.
+					$this->copyable( '[freemius_version slug="' . $product['slug'] . '"]' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside.
+					$this->copyable( '[freemius_changelog slug="' . $product['slug'] . '"]' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside.
 				);
 			}
 			echo '</tbody></table>';
@@ -350,6 +365,17 @@ final class SettingsPage {
 		echo '<p>' . $this->copyable( '[freemius_version acf_field="freemius_product_slug" field="date"]' ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside.
 		echo '<p class="wfs-field-desc">' . esc_html__( 'Output: <span class="freemius-version">1.4.2</span>. On error, visitors see nothing; users who can edit see the reason. Usable in the Elementor "Text Editor" widget.', 'wycan-freemius-stats' ) . '</p>';
 
+		$this->group_title( __( 'Shortcode: changelog', 'wycan-freemius-stats' ) );
+		echo '<p>' . esc_html__( 'Displays the full changelog of a product, as written in the readme.txt deployed on Freemius. Published versions only.', 'wycan-freemius-stats' ) . '</p>';
+		$this->attributes_table(
+			[
+				[ 'acf_field', __( 'Same rule as above.', 'wycan-freemius-stats' ), '' ],
+				[ 'slug', __( 'Product slug.', 'wycan-freemius-stats' ), '' ],
+			]
+		);
+		echo '<p>' . $this->copyable( '[freemius_changelog acf_field="freemius_product_slug"]' ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside.
+		echo '<p class="wfs-field-desc">' . esc_html__( 'Output: <div class="freemius-changelog">…</div>, one h4 heading and one list per version, to style in your theme. On error, visitors see nothing; users who can edit see the reason.', 'wycan-freemius-stats' ) . '</p>';
+
 		$this->group_title( __( 'Elementor widget', 'wycan-freemius-stats' ) );
 		echo '<p>' . esc_html__( 'The "Freemius Install Count" widget (General category) offers the same options as the shortcode, plus text before and after, color, typography and alignment.', 'wycan-freemius-stats' ) . '</p>';
 		echo '<div class="wfs-notice wfs-notice-warning">' . esc_html__( 'In "Fixed product" mode, a widget that was never given an explicit product shows the first product of the list. Keep the first product in place, or check your widgets after removing it.', 'wycan-freemius-stats' ) . '</div>';
@@ -362,6 +388,7 @@ final class SettingsPage {
 		echo '<ul class="wfs-list">';
 		echo '<li>' . esc_html__( 'The pages never call Freemius: they show the last known value, stored on this site.', 'wycan-freemius-stats' ) . '</li>';
 		echo '<li>' . esc_html__( 'Values are refreshed every hour in the background, and right after saving a new product or token.', 'wycan-freemius-stats' ) . '</li>';
+		echo '<li>' . esc_html__( 'The changelog is fetched again only when a new version is published, never every hour.', 'wycan-freemius-stats' ) . '</li>';
 		echo '<li>' . esc_html__( 'If Freemius is unreachable, the last value stays displayed and the error is shown in Products.', 'wycan-freemius-stats' ) . '</li>';
 		echo '<li>' . esc_html__( 'The very first display of a product without any value calls Freemius once (5 seconds at most), then waits 5 minutes before trying again.', 'wycan-freemius-stats' ) . '</li>';
 		echo '</ul>';

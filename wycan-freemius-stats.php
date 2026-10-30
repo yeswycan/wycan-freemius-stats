@@ -2,8 +2,8 @@
 /**
  * Plugin Name:          Wycan Freemius Stats
  * Plugin URI:           https://wycan.fr
- * Description:          Display the number of active installations and the latest version of your plugins via the Freemius API.
- * Version:              2.0.0
+ * Description:          Display the number of active installations, the latest version and the changelog of your plugins via the Freemius API.
+ * Version:              2.1.0
  * Author:               Wycan
  * Author URI:           https://wycan.fr
  * License:              GPL v2 or later
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WFS_VERSION', '2.0.0' );
+define( 'WFS_VERSION', '2.1.0' );
 define( 'WFS_FILE', __FILE__ );
 define( 'WFS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WFS_URL', plugin_dir_url( __FILE__ ) );

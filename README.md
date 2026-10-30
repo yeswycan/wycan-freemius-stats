@@ -1,6 +1,6 @@
 # Wycan Freemius Stats
 
-Extension WordPress interne de Wycan. Elle affiche sur wycan.fr le nombre d'installations et la dernière version publiée de nos plugins, lues depuis l'API Freemius : shortcodes `[freemius_installs]` et `[freemius_version]`, widget Elementor « Freemius Install Count », fonction PHP `wycan_get_freemius_installs()`.
+Extension WordPress interne de Wycan. Elle affiche sur wycan.fr le nombre d'installations, la dernière version publiée et le changelog de nos plugins, lus depuis l'API Freemius : shortcodes `[freemius_installs]`, `[freemius_version]` et `[freemius_changelog]`, widget Elementor « Freemius Install Count », fonction PHP `wycan_get_freemius_installs()`.
 
 Textes de l'administration en anglais avec traduction française incluse. Les textes publics des compteurs (`format="text"`, messages d'erreur) restent volontairement en anglais : ils sont identiques à la version 1.x pour ne pas modifier les pages existantes.
 
@@ -31,7 +31,7 @@ Réglages > Freemius Stats > Produits.
 2. **Tester la connexion** : le nom et le slug sont remplis depuis Freemius, le nombre d'installations s'affiche. Les erreurs sont distinguées : jeton refusé, produit introuvable, API injoignable, réponse invalide.
 3. **Enregistrer** : les valeurs sont synchronisées immédiatement et la carte affiche l'état du produit.
 
-Chaque carte montre l'état (Connecté, Jamais synchronisé, Jeton manquant, Jeton à ressaisir, Jeton refusé, Produit introuvable, API injoignable), les installations actives et totales, la dernière version et la date de synchronisation.
+Chaque carte montre l'état (Connecté, Jamais synchronisé, Jeton manquant, Jeton à ressaisir, Jeton refusé, Produit introuvable, API injoignable), les installations actives et totales, la dernière version, le changelog stocké (version et date de récupération) et la date de synchronisation. Un changelog en échec ou tronqué est signalé à part : il n'affecte ni l'état du produit ni les compteurs.
 
 **Ordre des produits.** Le premier produit de la liste est le produit par défaut des widgets Elementor en mode « Produit fixe » qui n'ont jamais reçu de choix explicite. Le retirer déclenche un avertissement. Les produits ne se réordonnent pas.
 
@@ -89,6 +89,22 @@ Rendu : `<span class="freemius-install-count">1 234</span>`. En cas d'erreur : `
 
 Seules les versions publiées sont lues, jamais les bêtas. Rendu : `<span class="freemius-version">1.4.2</span>`. En cas d'erreur, les visiteurs ne voient rien ; les utilisateurs capables d'éditer voient la raison. Utilisable dans le widget « Éditeur de texte » d'Elementor.
 
+### Shortcode `[freemius_changelog]`
+
+| Attribut | Rôle | Défaut |
+| --- | --- | --- |
+| `acf_field` | même règle que ci-dessus | |
+| `slug` | slug du produit | |
+
+```
+[freemius_changelog slug="mon-plugin"]
+[freemius_changelog acf_field="freemius_product_slug"]
+```
+
+Affiche le changelog complet de la dernière version publiée, tel que Freemius le renvoie à partir de la section `== Changelog ==` du `readme.txt` déployé, assaini par `wp_kses_post`. Rendu : `<div class="freemius-changelog"><h4>1.4.2</h4><ul><li>…</li></ul>…</div>`, un titre `h4` et une liste par version, sans style fourni : à styler dans le thème. En cas d'erreur, les visiteurs ne voient rien ; les utilisateurs capables d'éditer voient la raison.
+
+Taille plafonnée à 200 Ko : au delà, seules les entrées complètes les plus récentes sont gardées et la carte du produit le signale.
+
 ### Widget Elementor « Freemius Install Count »
 
 Catégorie Général. Source : champ ACF (dynamique, par défaut, champ `freemius_product_slug`) ou produit fixe. Format nombre ou texte, installations actives seulement (par défaut oui), texte avant et après, couleur, typographie, alignement.
@@ -111,6 +127,7 @@ La classe `Wycan_Freemius_Stats` de la 1.x reste disponible (`Wycan_Freemius_Sta
 
 - Les pages publiques n'appellent jamais Freemius : elles lisent la dernière valeur connue, stockée dans l'option `wycan_freemius_counts`.
 - Une tâche WP-Cron horaire (`wfs_sync_all`) resynchronise tous les produits : installations actives, totales et dernière version. Une valeur servie alors qu'elle a plus d'une heure déclenche en plus un rafraîchissement en arrière-plan, sans attente pour la page.
+- Le changelog n'est récupéré que lorsque la version publiée change ou qu'il est absent, jamais à chaque heure. L'appel Freemius exige un identifiant d'installation : le plugin prend la première installation renvoyée par l'API, le stocke dans `wycan_freemius_counts` et en cherche un autre si Freemius répond 404.
 - L'enregistrement d'un produit nouveau ou dont le jeton change le synchronise immédiatement.
 - Premier affichage d'un produit sans aucune valeur : un appel synchrone de 5 secondes au plus, puis 5 minutes sans nouvel essai en cas d'échec.
 - En cas de panne Freemius, la dernière valeur reste affichée et l'erreur apparaît sur la carte du produit.
@@ -126,6 +143,8 @@ Avec un cache de pages (LiteSpeed), le compteur affiché suit le cycle de ce cac
 | État « Produit introuvable » | identifiant erroné | corriger l'identifiant |
 | État « Jeton à ressaisir » | clés de sécurité WordPress changées | recoller le jeton, ou définir la constante `WFS_TOKEN_{id}` |
 | Valeurs qui ne bougent pas | WP-Cron inactif (`DISABLE_WP_CRON`) sans cron système | configurer un cron système sur `wp-cron.php`, ou enregistrer la page Produits pour forcer une synchronisation |
+| État « Journal des modifications indisponible » | produit sans aucune installation, ou `readme.txt` déployé sans section `== Changelog ==` | le détail de l'erreur figure sur la carte ; le plugin réessaie à chaque synchronisation |
+| État « Journal des modifications tronqué » | changelog de plus de 200 Ko | sans action : les entrées les plus récentes restent affichées |
 | Widget qui affiche le mauvais produit | premier produit de la liste supprimé | choisir explicitement le produit dans le widget |
 
 ## Désinstallation
@@ -153,7 +172,7 @@ tests/                     instantanés HTML et scripts de test (exclus de l'arc
 
 Traductions : `.pot` généré par `wp i18n make-pot`, `.mo` compilé par `msgfmt` (`build.sh` le recompile).
 
-Tests : `tests/capture-snapshots.php` capture le HTML du front pour toutes les combinaisons du shortcode et du widget, avec des réponses Freemius simulées ; `tests/snapshots/v1.1.0/` contient la référence capturée sur la 1.1.0 et `tests/compare-snapshots.sh` compare. `tests/test-migration.php` et `tests/test-sync.php` couvrent la migration, le nettoyage de l'option, les jetons, la synchronisation et le shortcode de version. Aucun jeton réel n'est utilisé.
+Tests : `tests/capture-snapshots.php` capture le HTML du front pour toutes les combinaisons du shortcode et du widget, avec des réponses Freemius simulées ; `tests/snapshots/v1.1.0/` contient la référence capturée sur la 1.1.0 et `tests/compare-snapshots.sh` compare. `tests/test-migration.php` et `tests/test-sync.php` couvrent la migration, le nettoyage de l'option, les jetons, la synchronisation, les shortcodes de version et de changelog et l'état du changelog sur la page de réglages. Aucun jeton réel n'est utilisé.
 
 Archive : `./build.sh [nom-du-dossier]` produit `dist/<dossier>-<version>.zip` (défaut : `wycan-plugins-stats`, le dossier installé sur wycan.fr).
 
