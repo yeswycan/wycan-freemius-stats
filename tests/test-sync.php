@@ -24,10 +24,16 @@ $_SERVER['REQUEST_URI'] = '/';
 define( 'WP_USE_THEMES', false );
 require $wp_root . '/wp-load.php';
 
+use Wycan\FreemiusStats\Admin\SettingsPage;
 use Wycan\FreemiusStats\Counts\CountStore;
 use Wycan\FreemiusStats\Counts\Scheduler;
 use Wycan\FreemiusStats\Plugin;
 use Wycan\FreemiusStats\Products\Repository;
+
+/** Doublure minimale d'ACF : seule get_field() est consommée par le plugin. */
+function get_field( $name, $post_id = false ) {
+	return $GLOBALS['wfs_acf_fields'][ $name ] ?? null;
+}
 
 $failures = 0;
 function check( string $label, bool $ok, string $detail = '' ): void {
@@ -281,6 +287,47 @@ $calls = [];
 check( 'front : panne, rien après un appel', null === $plugin->versions->changelog( $panne ) && 1 === count( $calls ) );
 $calls = [];
 check( 'front : panne, pas de nouvel appel pendant 5 minutes', null === $plugin->versions->changelog( $panne ) && [] === $calls );
+
+// Shortcode [freemius_changelog].
+wp_set_current_user( 0 );
+$calls = [];
+$html  = $plugin->store->changelog( '1001' )['html'];
+check( 'visiteur : changelog complet dans son conteneur', '<div class="freemius-changelog">' . $html . '</div>' === do_shortcode( '[freemius_changelog slug="wycan-alpha"]' ) );
+check( 'visiteur : aucun appel réseau', [] === $calls );
+$plugin->store->set_changelog( '1002', '1.8.0', '<h4>BETA</h4><script>alert(1)</script>', false );
+$GLOBALS['wfs_acf_fields'] = [ 'freemius_product_slug' => 'wycan-beta', 'champ_vide' => '' ];
+check( 'acf_field prioritaire sur slug', str_contains( do_shortcode( '[freemius_changelog acf_field="freemius_product_slug" slug="wycan-alpha"]' ), '<h4>BETA</h4>' ) );
+check( 'wp_kses_post aussi à l\'affichage', ! str_contains( do_shortcode( '[freemius_changelog slug="wycan-beta"]' ), '<script' ) );
+check( 'visiteur, slug inconnu : rien', '' === do_shortcode( '[freemius_changelog slug="inconnu"]' ) );
+check( 'visiteur, sans attribut : rien', '' === do_shortcode( '[freemius_changelog]' ) );
+check( 'visiteur, champ ACF vide : rien', '' === do_shortcode( '[freemius_changelog acf_field="champ_vide"]' ) );
+check( 'visiteur, produit en panne : rien', '' === do_shortcode( '[freemius_changelog slug="wycan-panne"]' ) );
+wp_set_current_user( 1 );
+check( 'éditeur, slug inconnu : message', str_starts_with( do_shortcode( '[freemius_changelog slug="inconnu"]' ), '<span class="freemius-error">Freemius changelog:' ) );
+check( 'éditeur, sans attribut : message', str_contains( do_shortcode( '[freemius_changelog]' ), 'acf_field' ) );
+check( 'éditeur, panne : message', str_contains( do_shortcode( '[freemius_changelog slug="wycan-panne"]' ), 'wycan-panne' ) );
+check( 'éditeur, version : même message qu\'avant la factorisation', '<span class="freemius-error">Freemius version: Unknown product &quot;inconnu&quot;.</span>' === do_shortcode( '[freemius_version slug="inconnu"]' ) );
+
+// Page de réglages : état du changelog sur la carte, shortcode prêt à copier.
+require_once ABSPATH . 'wp-admin/includes/template.php';
+$page   = new SettingsPage( $plugin );
+$render = static function ( string $tab ) use ( $page ): string {
+	$_GET['tab'] = $tab;
+	ob_start();
+	$page->render();
+	return (string) ob_get_clean();
+};
+$plugin->store->set_changelog( '1001', '1.8.0', $html, true );
+$plugin->store->record_failure( '1002', CountStore::FIELD_CHANGELOG, Wycan\FreemiusStats\Api\ApiResult::failure( 'not_found', 'The product has no install yet.', 200 ) );
+$screen = $render( 'products' );
+check( 'carte : version et date du changelog', (bool) preg_match( '#<dt>Changelog</dt><dd>1\.8\.0, [^<]+</dd>#', $screen ) );
+check( 'carte : mention de la troncature', str_contains( $screen, 'Changelog truncated' ) && str_contains( $screen, '200 KB' ) );
+check( 'carte : erreur du changelog à part', str_contains( $screen, 'Changelog unavailable' ) && str_contains( $screen, 'The product has no install yet.' ) );
+$plugin->store->set_changelog( '1001', '1.8.0', $html, false );
+$screen = $render( 'usage' );
+check( 'utilisation : shortcode prêt à copier par produit', str_contains( $screen, 'data-wfs-copy="[freemius_changelog slug=&quot;wycan-alpha&quot;]"' ) );
+check( 'utilisation : exemple avec champ ACF', str_contains( $screen, '[freemius_changelog acf_field=&quot;freemius_product_slug&quot;]' ) );
+wp_set_current_user( 0 );
 
 // 9. Suppression d'un produit : valeurs purgées.
 $calls   = [];

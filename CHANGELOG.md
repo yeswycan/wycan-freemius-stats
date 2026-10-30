@@ -1,5 +1,22 @@
 # Journal des modifications
 
+## 2.1.0 (2026-10-30)
+
+### Ajouts
+
+- Shortcode `[freemius_changelog]` (attributs `slug` et `acf_field`) : changelog complet de la dernière version publiée, tel que Freemius le renvoie, passé par `wp_kses_post`, rendu dans `<div class="freemius-changelog">`. En cas d'erreur, rien pour les visiteurs et un message pour les utilisateurs capables d'éditer.
+- Récupération du changelog par la synchronisation existante, seulement quand la version publiée change ou que le changelog est absent. Identifiant d'installation résolu automatiquement et résolu à nouveau en cas de 404.
+- Taille plafonnée à 200 Ko, avec troncature à la dernière entrée complète.
+- Page de réglages : version et date du changelog sur la carte produit, état séparé en cas d'échec ou de troncature, shortcode prêt à copier et tableau d'attributs dans la section Utilisation.
+
+### Modifications
+
+- Résolution du produit et message d'erreur des shortcodes `[freemius_version]` et `[freemius_changelog]` factorisés dans `Front\ShortcodeProduct`, sans changement de rendu.
+
+### Compatibilité
+
+- Aucune migration : les nouvelles valeurs (`changelog`, `install_id`, `changelog_error`) s'ajoutent à l'option `wycan_freemius_counts`. L'option `wycan_freemius_products` et le HTML de `[freemius_installs]` et du widget sont inchangés.
+
 ## 2.0.0 (2026-10-29)
 
 Reconstruction complète sous le même slug, le même shortcode, le même widget et la même option. Le HTML public du shortcode `[freemius_installs]` et du widget est identique à la 1.1.0 (vérifié par 78 instantanés).

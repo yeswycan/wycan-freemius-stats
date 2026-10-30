@@ -44,23 +44,11 @@ final class VersionShortcode {
 			'freemius_version'
 		);
 
-		if ( ! empty( $atts['acf_field'] ) ) {
-			$slug = AcfSlug::read( (string) $atts['acf_field'] );
-			if ( false === $slug ) {
-				/* translators: %s: ACF field name */
-				return $this->error( sprintf( __( 'Unable to read the ACF field "%s".', 'wycan-freemius-stats' ), (string) $atts['acf_field'] ) );
-			}
-		} elseif ( ! empty( $atts['slug'] ) ) {
-			$slug = (string) $atts['slug'];
-		} else {
-			return $this->error( __( 'Specify either "slug" or "acf_field".', 'wycan-freemius-stats' ) );
+		$product = ShortcodeProduct::resolve( $this->plugin->products, $atts );
+		if ( is_string( $product ) ) {
+			return $this->error( $product );
 		}
-
-		$product = $this->plugin->products->find( $slug );
-		if ( null === $product || '' === $product['product_id'] ) {
-			/* translators: %s: product slug */
-			return $this->error( sprintf( __( 'Unknown product "%s".', 'wycan-freemius-stats' ), $slug ) );
-		}
+		$slug = $product['slug'];
 
 		$release = $this->plugin->versions->get( $product );
 		if ( null === $release ) {
@@ -90,9 +78,6 @@ final class VersionShortcode {
 	}
 
 	private function error( string $message ): string {
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			return '';
-		}
-		return '<span class="freemius-error">' . esc_html( __( 'Freemius version:', 'wycan-freemius-stats' ) . ' ' . $message ) . '</span>';
+		return ShortcodeProduct::error( __( 'Freemius version:', 'wycan-freemius-stats' ), $message );
 	}
 }

@@ -3,9 +3,9 @@
 # This file is distributed under the same license as the Wycan Freemius Stats package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Wycan Freemius Stats 2.0.0\n"
-"Report-Msgid-Bugs-To: https://wycan.fr\n"
-"POT-Creation-Date: 2026-10-29T12:47:45+00:00\n"
+"Project-Id-Version: Wycan Freemius Stats 2.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wycan-freemius-stats\n"
+"POT-Creation-Date: 2026-10-30T10:33:35+00:00\n"
 "PO-Revision-Date: 2026-10-29 14:00+0100\n"
 "Last-Translator: Wycan <contact@wycan.fr>\n"
 "Language-Team: Wycan <contact@wycan.fr>\n"
@@ -29,8 +29,8 @@ msgstr "https://wycan.fr"
 
 #. Description of the plugin
 #: wycan-freemius-stats.php
-msgid "Display the number of active installations and the latest version of your plugins via the Freemius API."
-msgstr "Affiche le nombre d'installations actives et la dernière version de vos plugins via l'API Freemius."
+msgid "Display the number of active installations, the latest version and the changelog of your plugins via the Freemius API."
+msgstr "Affiche le nombre d'installations actives, la dernière version et le journal des modifications de vos plugins via l'API Freemius."
 
 #. Author of the plugin
 #: wycan-freemius-stats.php
@@ -65,15 +65,15 @@ msgstr "Nouveau produit"
 msgid "Copied"
 msgstr "Copié"
 
-#: src/Admin/Admin.php:76 src/Admin/SettingsPage.php:413
+#: src/Admin/Admin.php:76 src/Admin/SettingsPage.php:446
 msgid "Copy"
 msgstr "Copier"
 
-#: src/Admin/Admin.php:77 src/Admin/SettingsPage.php:140
+#: src/Admin/Admin.php:77 src/Admin/SettingsPage.php:145
 msgid "Edit"
 msgstr "Modifier"
 
-#: src/Admin/Admin.php:78 src/Admin/SettingsPage.php:140
+#: src/Admin/Admin.php:78 src/Admin/SettingsPage.php:145
 msgid "Close"
 msgstr "Fermer"
 
@@ -139,67 +139,82 @@ msgstr "Wycan (ouvre un nouvel onglet)"
 msgid "Plugin navigation"
 msgstr "Navigation de l'extension"
 
-#: src/Admin/ProductState.php:33
+#: src/Admin/ProductState.php:34
 msgid "Incomplete"
 msgstr "Incomplet"
 
-#: src/Admin/ProductState.php:33
+#: src/Admin/ProductState.php:34
 msgid "Enter the Freemius product ID."
 msgstr "Saisissez l'identifiant Freemius du produit."
 
-#: src/Admin/ProductState.php:38
+#: src/Admin/ProductState.php:39
 msgid "Token missing"
 msgstr "Jeton manquant"
 
-#: src/Admin/ProductState.php:38
+#: src/Admin/ProductState.php:39
 msgid "Paste the product API token."
 msgstr "Collez le jeton API du produit."
 
-#: src/Admin/ProductState.php:41
+#: src/Admin/ProductState.php:42
 msgid "Token to re-enter"
 msgstr "Jeton à ressaisir"
 
-#: src/Admin/ProductState.php:41
+#: src/Admin/ProductState.php:42
 msgid "The WordPress security keys have changed since the token was saved. Paste it again."
 msgstr "Les clés de sécurité WordPress ont changé depuis l'enregistrement du jeton. Collez-le à nouveau."
 
+#: src/Admin/ProductState.php:52
+msgid "Token refused"
+msgstr "Jeton refusé"
+
+#: src/Admin/ProductState.php:53
+msgid "Product not found"
+msgstr "Produit introuvable"
+
+#: src/Admin/ProductState.php:54
+msgid "Invalid response"
+msgstr "Réponse invalide"
+
+#: src/Admin/ProductState.php:55
+msgid "API unreachable"
+msgstr "API injoignable"
+
+#: src/Admin/ProductState.php:60
+msgid "Connected"
+msgstr "Connecté"
+
+#: src/Admin/ProductState.php:63
+msgid "Never synchronized"
+msgstr "Jamais synchronisé"
+
+#: src/Admin/ProductState.php:63
+msgid "Save to run the first synchronization."
+msgstr "Enregistrez pour lancer la première synchronisation."
+
+#: src/Admin/ProductState.php:82
+msgid "Changelog unavailable"
+msgstr "Journal des modifications indisponible"
+
+#: src/Admin/ProductState.php:90
+msgid "Changelog truncated"
+msgstr "Journal des modifications tronqué"
+
+#. translators: %s: size limit, for example 200 KB
+#: src/Admin/ProductState.php:94
+#, php-format
+msgid "Longer than %s: only the most recent complete entries are kept."
+msgstr "Plus de %s : seules les entrées complètes les plus récentes sont conservées."
+
 #. translators: %s: human readable delay
-#: src/Admin/ProductState.php:50 src/Admin/SettingsPage.php:289
+#: src/Admin/ProductState.php:109 src/Admin/SettingsPage.php:295
+#: src/Admin/SettingsPage.php:308
 #, php-format
 msgid "%s ago"
 msgstr "il y a %s"
 
-#: src/Admin/ProductState.php:53
+#: src/Admin/ProductState.php:112
 msgid "The last known value is still displayed."
 msgstr "La dernière valeur connue reste affichée."
-
-#: src/Admin/ProductState.php:57
-msgid "Token refused"
-msgstr "Jeton refusé"
-
-#: src/Admin/ProductState.php:58
-msgid "Product not found"
-msgstr "Produit introuvable"
-
-#: src/Admin/ProductState.php:59
-msgid "Invalid response"
-msgstr "Réponse invalide"
-
-#: src/Admin/ProductState.php:60
-msgid "API unreachable"
-msgstr "API injoignable"
-
-#: src/Admin/ProductState.php:65
-msgid "Connected"
-msgstr "Connecté"
-
-#: src/Admin/ProductState.php:68
-msgid "Never synchronized"
-msgstr "Jamais synchronisé"
-
-#: src/Admin/ProductState.php:68
-msgid "Save to run the first synchronization."
-msgstr "Enregistrez pour lancer la première synchronisation."
 
 #: src/Admin/SettingsPage.php:35
 msgid "You are not allowed to access this page."
@@ -241,246 +256,276 @@ msgstr "ID"
 msgid "Default product of the widgets"
 msgstr "Produit par défaut des widgets"
 
-#: src/Admin/SettingsPage.php:142
+#: src/Admin/SettingsPage.php:147
 msgid "Test connection"
 msgstr "Tester la connexion"
 
-#: src/Admin/SettingsPage.php:143
+#: src/Admin/SettingsPage.php:148
 msgid "Remove"
 msgstr "Supprimer"
 
-#: src/Admin/SettingsPage.php:151
+#: src/Admin/SettingsPage.php:156
 msgid "Freemius product ID"
 msgstr "Identifiant Freemius du produit"
 
-#: src/Admin/SettingsPage.php:152
+#: src/Admin/SettingsPage.php:157
 msgid "Freemius dashboard, your product, Settings: the ID is shown at the top of the page."
 msgstr "Tableau de bord Freemius, votre produit, Settings : l'identifiant est affiché en haut de la page."
 
-#: src/Admin/SettingsPage.php:163
+#: src/Admin/SettingsPage.php:168
 msgid "API token"
 msgstr "Jeton API"
 
-#: src/Admin/SettingsPage.php:164
+#: src/Admin/SettingsPage.php:169
 msgid "Freemius dashboard, your product, Settings, \"API & Keys\" tab: copy the \"API Bearer Authorization Token\". Stored encrypted, never displayed again."
 msgstr "Tableau de bord Freemius, votre produit, Settings, onglet « API & Keys » : copiez le « API Bearer Authorization Token ». Stocké chiffré, jamais réaffiché."
 
-#: src/Admin/SettingsPage.php:170
+#: src/Admin/SettingsPage.php:175
 msgid "Name"
 msgstr "Nom"
 
-#: src/Admin/SettingsPage.php:171
+#: src/Admin/SettingsPage.php:176
 msgid "Shown in the Elementor widget. Filled in by the connection test, editable."
 msgstr "Affiché dans le widget Elementor. Rempli par le test de connexion, modifiable."
 
-#: src/Admin/SettingsPage.php:182
+#: src/Admin/SettingsPage.php:187
 msgid "Slug"
 msgstr "Slug"
 
-#: src/Admin/SettingsPage.php:183
+#: src/Admin/SettingsPage.php:188
 msgid "Identifier used by the shortcodes and the ACF field: lowercase letters, digits and dashes. Filled in by the connection test. Changing it breaks the pages that use the old slug."
 msgstr "Identifiant utilisé par les shortcodes et le champ ACF : minuscules, chiffres et tirets. Rempli par le test de connexion. Le changer casse les pages qui utilisent l'ancien slug."
 
-#: src/Admin/SettingsPage.php:213
+#: src/Admin/SettingsPage.php:218
 msgid "Defined in wp-config.php"
 msgstr "Défini dans wp-config.php"
 
 #. translators: %s: PHP constant name
-#: src/Admin/SettingsPage.php:216
+#: src/Admin/SettingsPage.php:221
 #, php-format
 msgid "The constant %s takes precedence over the saved token. Remove it from wp-config.php to manage the token here."
 msgstr "La constante %s est prioritaire sur le jeton enregistré. Retirez-la de wp-config.php pour gérer le jeton ici."
 
-#: src/Admin/SettingsPage.php:226
+#: src/Admin/SettingsPage.php:231
 msgid "Paste the token"
 msgstr "Collez le jeton"
 
-#: src/Admin/SettingsPage.php:226
+#: src/Admin/SettingsPage.php:231
 msgid "Leave empty to keep the saved token"
 msgstr "Laissez vide pour conserver le jeton enregistré"
 
 #. translators: %s: last four characters of the token
-#: src/Admin/SettingsPage.php:234
+#: src/Admin/SettingsPage.php:239
 #, php-format
 msgid "Saved token ending with %s."
 msgstr "Jeton enregistré, se terminant par %s."
 
-#: src/Admin/SettingsPage.php:239
+#: src/Admin/SettingsPage.php:244
 msgid "The saved token cannot be read any more (security keys changed): paste it again."
 msgstr "Le jeton enregistré n'est plus lisible (clés de sécurité changées) : collez-le à nouveau."
 
-#: src/Admin/SettingsPage.php:246
+#: src/Admin/SettingsPage.php:251
 msgid "Delete the saved token"
 msgstr "Supprimer le jeton enregistré"
 
-#: src/Admin/SettingsPage.php:274
+#: src/Admin/SettingsPage.php:280
 msgid "Active"
 msgstr "Actives"
 
-#: src/Admin/SettingsPage.php:277
+#: src/Admin/SettingsPage.php:283
 msgid "Total"
 msgstr "Total"
 
-#: src/Admin/SettingsPage.php:280
+#: src/Admin/SettingsPage.php:286
 msgid "Version"
 msgstr "Version"
 
-#: src/Admin/SettingsPage.php:285
+#: src/Admin/SettingsPage.php:291 src/Admin/SettingsPage.php:334
+msgid "Changelog"
+msgstr "Journal des modifications"
+
+#: src/Admin/SettingsPage.php:304
 msgid "Synchronized"
 msgstr "Synchronisé"
 
-#: src/Admin/SettingsPage.php:305
+#: src/Admin/SettingsPage.php:324
 msgid "Ready to copy"
 msgstr "Prêt à copier"
 
-#: src/Admin/SettingsPage.php:307
+#: src/Admin/SettingsPage.php:326
 msgid "Add a product first: its shortcodes will appear here."
 msgstr "Ajoutez d'abord un produit : ses shortcodes apparaîtront ici."
 
-#: src/Admin/SettingsPage.php:312 src/Front/InstallCountWidget.php:76
+#: src/Admin/SettingsPage.php:331 src/Front/InstallCountWidget.php:76
 msgid "Product"
 msgstr "Produit"
 
-#: src/Admin/SettingsPage.php:313
+#: src/Admin/SettingsPage.php:332
 msgid "Install count"
 msgstr "Nombre d'installations"
 
-#: src/Admin/SettingsPage.php:314
+#: src/Admin/SettingsPage.php:333
 msgid "Latest version"
 msgstr "Dernière version"
 
-#: src/Admin/SettingsPage.php:328
+#: src/Admin/SettingsPage.php:349
 msgid "Shortcode: install count"
 msgstr "Shortcode : nombre d'installations"
 
-#: src/Admin/SettingsPage.php:329
+#: src/Admin/SettingsPage.php:350
 msgid "Displays the number of installations of a product. With an ACF field, one template serves every product page."
 msgstr "Affiche le nombre d'installations d'un produit. Avec un champ ACF, un seul gabarit sert toutes les fiches produit."
 
-#: src/Admin/SettingsPage.php:332
+#: src/Admin/SettingsPage.php:353
 msgid "Name of the ACF field of the current page that holds the product slug. Takes precedence over slug."
 msgstr "Nom du champ ACF de la page courante qui contient le slug du produit. Prioritaire sur slug."
 
-#: src/Admin/SettingsPage.php:333
+#: src/Admin/SettingsPage.php:354
 msgid "Product slug, as configured in Products."
 msgstr "Slug du produit, tel que configuré dans Produits."
 
-#: src/Admin/SettingsPage.php:334
+#: src/Admin/SettingsPage.php:355
 msgid "\"number\" shows the number only, \"text\" adds \"active installations\"."
 msgstr "« number » affiche le nombre seul, « text » ajoute « active installations »."
 
-#: src/Admin/SettingsPage.php:335
+#: src/Admin/SettingsPage.php:356
 msgid "\"true\" counts active installations only, \"false\" counts every installation."
 msgstr "« true » compte les installations actives seulement, « false » compte toutes les installations."
 
-#: src/Admin/SettingsPage.php:339
+#: src/Admin/SettingsPage.php:360
 msgid "Output: <span class=\"freemius-install-count\">1 234</span>. On error: <span class=\"freemius-error\">…</span>, visible to everyone (frozen behaviour of the 1.x pages)."
 msgstr "Rendu : <span class=\"freemius-install-count\">1 234</span>. En cas d'erreur : <span class=\"freemius-error\">…</span>, visible par tous (comportement figé des pages en 1.x)."
 
-#: src/Admin/SettingsPage.php:341
+#: src/Admin/SettingsPage.php:362
 msgid "Shortcode: latest version"
 msgstr "Shortcode : dernière version"
 
-#: src/Admin/SettingsPage.php:342
+#: src/Admin/SettingsPage.php:363
 msgid "Displays the latest published version of a product (betas are ignored), its date or its WordPress compatibility."
 msgstr "Affiche la dernière version publiée d'un produit (les bêtas sont ignorées), sa date ou sa compatibilité WordPress."
 
-#: src/Admin/SettingsPage.php:345
+#: src/Admin/SettingsPage.php:366 src/Admin/SettingsPage.php:378
 msgid "Same rule as above."
 msgstr "Même règle que ci-dessus."
 
-#: src/Admin/SettingsPage.php:346
+#: src/Admin/SettingsPage.php:367 src/Admin/SettingsPage.php:379
 msgid "Product slug."
 msgstr "Slug du produit."
 
 #. translators: %s: list of values
-#: src/Admin/SettingsPage.php:347
+#: src/Admin/SettingsPage.php:368
 #, php-format
 msgid "Value to display: %s."
 msgstr "Valeur à afficher : %s."
 
 #. translators: %s: list of values
-#: src/Admin/SettingsPage.php:347
+#: src/Admin/SettingsPage.php:368
 msgid "\"date\" follows the site date format."
 msgstr "« date » suit le format de date du site."
 
-#: src/Admin/SettingsPage.php:351
+#: src/Admin/SettingsPage.php:372
 msgid "Output: <span class=\"freemius-version\">1.4.2</span>. On error, visitors see nothing; users who can edit see the reason. Usable in the Elementor \"Text Editor\" widget."
 msgstr "Rendu : <span class=\"freemius-version\">1.4.2</span>. En cas d'erreur, les visiteurs ne voient rien ; les utilisateurs qui peuvent éditer voient la raison. Utilisable dans le widget « Éditeur de texte » d'Elementor."
 
-#: src/Admin/SettingsPage.php:353
+#: src/Admin/SettingsPage.php:374
+msgid "Shortcode: changelog"
+msgstr "Shortcode : journal des modifications"
+
+#: src/Admin/SettingsPage.php:375
+msgid "Displays the full changelog of a product, as written in the readme.txt deployed on Freemius. Published versions only."
+msgstr "Affiche le journal des modifications complet d'un produit, tel qu'écrit dans le readme.txt déployé sur Freemius. Versions publiées seulement."
+
+#: src/Admin/SettingsPage.php:383
+msgid "Output: <div class=\"freemius-changelog\">…</div>, one h4 heading and one list per version, to style in your theme. On error, visitors see nothing; users who can edit see the reason."
+msgstr "Rendu : <div class=\"freemius-changelog\">…</div>, un titre h4 et une liste par version, à styler dans votre thème. En cas d'erreur, les visiteurs ne voient rien ; les utilisateurs capables d'éditer voient la raison."
+
+#: src/Admin/SettingsPage.php:385
 msgid "Elementor widget"
 msgstr "Widget Elementor"
 
-#: src/Admin/SettingsPage.php:354
+#: src/Admin/SettingsPage.php:386
 msgid "The \"Freemius Install Count\" widget (General category) offers the same options as the shortcode, plus text before and after, color, typography and alignment."
 msgstr "Le widget « Freemius Install Count » (catégorie Général) offre les mêmes options que le shortcode, plus un texte avant et après, la couleur, la typographie et l'alignement."
 
-#: src/Admin/SettingsPage.php:355
+#: src/Admin/SettingsPage.php:387
 msgid "In \"Fixed product\" mode, a widget that was never given an explicit product shows the first product of the list. Keep the first product in place, or check your widgets after removing it."
 msgstr "En mode « Produit fixe », un widget auquel aucun produit n'a été explicitement choisi affiche le premier produit de la liste. Gardez le premier produit en place, ou vérifiez vos widgets après l'avoir retiré."
 
-#: src/Admin/SettingsPage.php:357
+#: src/Admin/SettingsPage.php:389
 msgid "PHP function"
 msgstr "Fonction PHP"
 
-#: src/Admin/SettingsPage.php:358
+#: src/Admin/SettingsPage.php:390
 msgid "In a theme template. Returns a whole number, or false when no value can be displayed."
 msgstr "Dans un gabarit de thème. Renvoie un nombre entier, ou false quand aucune valeur ne peut être affichée."
 
-#: src/Admin/SettingsPage.php:361
+#: src/Admin/SettingsPage.php:393
 msgid "How values are refreshed"
 msgstr "Rafraîchissement des valeurs"
 
-#: src/Admin/SettingsPage.php:363
+#: src/Admin/SettingsPage.php:395
 msgid "The pages never call Freemius: they show the last known value, stored on this site."
 msgstr "Les pages n'appellent jamais Freemius : elles affichent la dernière valeur connue, stockée sur ce site."
 
-#: src/Admin/SettingsPage.php:364
+#: src/Admin/SettingsPage.php:396
 msgid "Values are refreshed every hour in the background, and right after saving a new product or token."
 msgstr "Les valeurs sont rafraîchies toutes les heures en arrière-plan, et juste après l'enregistrement d'un nouveau produit ou jeton."
 
-#: src/Admin/SettingsPage.php:365
+#: src/Admin/SettingsPage.php:397
+msgid "The changelog is fetched again only when a new version is published, never every hour."
+msgstr "Le journal des modifications n'est récupéré à nouveau que lorsqu'une nouvelle version est publiée, jamais à chaque heure."
+
+#: src/Admin/SettingsPage.php:398
 msgid "If Freemius is unreachable, the last value stays displayed and the error is shown in Products."
 msgstr "Si Freemius est injoignable, la dernière valeur reste affichée et l'erreur apparaît dans Produits."
 
-#: src/Admin/SettingsPage.php:366
+#: src/Admin/SettingsPage.php:399
 msgid "The very first display of a product without any value calls Freemius once (5 seconds at most), then waits 5 minutes before trying again."
 msgstr "Le tout premier affichage d'un produit sans aucune valeur appelle Freemius une fois (5 secondes au plus), puis attend 5 minutes avant de réessayer."
 
-#: src/Admin/SettingsPage.php:369
+#: src/Admin/SettingsPage.php:402
 msgid "Token security"
 msgstr "Sécurité des jetons"
 
-#: src/Admin/SettingsPage.php:371
+#: src/Admin/SettingsPage.php:404
 msgid "A Freemius product token also allows writes on that product (customers, payments): treat it like a password."
 msgstr "Un jeton de produit Freemius autorise aussi des écritures sur ce produit (clients, paiements) : traitez-le comme un mot de passe."
 
-#: src/Admin/SettingsPage.php:372
+#: src/Admin/SettingsPage.php:405
 msgid "Tokens are encrypted in the database with a key derived from the WordPress security keys, and never sent back to the browser. A database export alone does not reveal them; a copy of wp-config.php does."
 msgstr "Les jetons sont chiffrés en base avec une clé dérivée des clés de sécurité WordPress, et jamais renvoyés au navigateur. Un export de la base seul ne les révèle pas ; une copie de wp-config.php, si."
 
 #. translators: %s: PHP constant name pattern
-#: src/Admin/SettingsPage.php:375
+#: src/Admin/SettingsPage.php:408
 #, php-format
 msgid "Alternatively, define %s in wp-config.php: it takes precedence over the saved token."
 msgstr "Autre possibilité : définir %s dans wp-config.php, prioritaire sur le jeton enregistré."
 
-#: src/Admin/SettingsPage.php:392
+#: src/Admin/SettingsPage.php:425
 msgid "Attribute"
 msgstr "Attribut"
 
-#: src/Admin/SettingsPage.php:393
+#: src/Admin/SettingsPage.php:426
 msgid "Role"
 msgstr "Rôle"
 
-#: src/Admin/SettingsPage.php:394
+#: src/Admin/SettingsPage.php:427
 msgid "Default"
 msgstr "Défaut"
 
-#: src/Admin/SettingsPage.php:402
+#: src/Admin/SettingsPage.php:435
 msgid "none"
 msgstr "aucun"
+
+#. translators: %s: product slug
+#: src/Front/ChangelogShortcode.php:52
+#, php-format
+msgid "No changelog available for \"%s\"."
+msgstr "Aucun journal des modifications disponible pour « %s »."
+
+#: src/Front/ChangelogShortcode.php:59
+msgid "Freemius changelog:"
+msgstr "Journal Freemius :"
 
 #: src/Front/InstallCountWidget.php:32
 msgid "Freemius Install Count"
@@ -579,34 +624,34 @@ msgid "Right"
 msgstr "Droite"
 
 #. translators: %s: ACF field name
-#: src/Front/VersionShortcode.php:51
+#: src/Front/ShortcodeProduct.php:31
 #, php-format
 msgid "Unable to read the ACF field \"%s\"."
 msgstr "Impossible de lire le champ ACF « %s »."
 
-#: src/Front/VersionShortcode.php:56
+#: src/Front/ShortcodeProduct.php:36
 msgid "Specify either \"slug\" or \"acf_field\"."
 msgstr "Indiquez « slug » ou « acf_field »."
 
 #. translators: %s: product slug
-#: src/Front/VersionShortcode.php:62
+#: src/Front/ShortcodeProduct.php:42
 #, php-format
 msgid "Unknown product \"%s\"."
 msgstr "Produit inconnu « %s »."
 
 #. translators: %s: product slug
-#: src/Front/VersionShortcode.php:68
+#: src/Front/VersionShortcode.php:56
 #, php-format
 msgid "No published version available for \"%s\"."
 msgstr "Aucune version publiée disponible pour « %s »."
 
 #. translators: 1: field name, 2: product slug
-#: src/Front/VersionShortcode.php:75
+#: src/Front/VersionShortcode.php:63
 #, php-format
 msgid "The \"%1$s\" field is empty for \"%2$s\"."
 msgstr "Le champ « %1$s » est vide pour « %2$s »."
 
-#: src/Front/VersionShortcode.php:96
+#: src/Front/VersionShortcode.php:81
 msgid "Freemius version:"
 msgstr "Version Freemius :"
 
